@@ -1,0 +1,114 @@
+
+
+###############
+videkah AKA VimIDE
+###############
+
+a vim ide.
+############################
+by Karl Khaos Hoskin
+Feb 2014
+############################
+
+
+###########################################################
+~/.vim/videkah/project_config/
+########
+
+stores the base_dirs of projects.
+
+i.e.
+
+~/.vim/videkah/project_config/no1_proj
+
+will contain the following lines , which could be something like :-
+
+BASE_DIR=/home/myuser/git-co/my_no1_proj/
+FILELIST_BY=by_git_branch
+# above could be either by_git_branch, by_path, by_path_n_git_branch , local where :-
+
+(1) by_git_branch
+(2) by_path
+(3) by_path_n_git_branch
+(4) local
+
+
+
+###########################################################
+~/.vim/videkah/filelists/<project_name>/
+
+stores the filelists for the various different ways filelists are stored by.
+
+
+###########################################################
+~/.vim/videkah/runlists/<project_name>/
+
+
+stores ther runlists
+
+###########################################################
+
+~/.vim/videkah/bin/
+
+stores all the binaries / scripts.
+
+
+
+
+
+
+
+############################################################
+
+
+
+has a list of files
+
+the list of files are saved in ~/.vim/filelists/<file>
+
+
+navigates stack traces. firstly perl stack traces , maybe other ones too.
+
+
+
+
+
+by path config.
+##############
+
+when it opens it checks the pwd.
+
+this tells it what config to use,
+and where the "filelist" is.
+is it in :-
+1) ~/.vim/videkah/filelists/by-git-branch/
+
+2) ~/.vim/videkah/filelists/by-path/
+
+3) ~/.vim/videkah/filelists/by-path-n-git-branch/
+
+
+
+
+~/.vim/videkah/bin/
+
+    videkah shell script
+    perlstacktrace.pl
+
+
+
+generalised , a perl module/project somewhere config.
+
+
+Runlists
+########
+
+list of external shell scripts that can be run.
+
+
+
+stacktrace
+##########
+stacktrace navigating buffer.
+
+

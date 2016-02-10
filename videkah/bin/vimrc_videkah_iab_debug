@@ -1,0 +1,152 @@
+"=====[ iab shortcuts to very common debug and structures, like pod etc ]===================================
+
+" Insert various shebang lines...
+" (iab prefix) v  = videkah
+" (iab prefix) vp = videkah-perl
+
+" all these iab should leave vim in insert mode.
+
+" vhbb  = videkah hash bang bash
+iab vhbb #!/bin/bash<CR>
+
+" vhbp  = videkah perl hash bang line
+iab vhbp <ESC>1G0i#!/usr/bin/perl<CR>use strict;<CR>use warnings;<CR>use 5.14.2;
+iab vperl <ESC>1G0i#!/usr/bin/perl<CR>use strict;<CR>use warnings;<CR>use 5.14.2;
+
+iab vpy <ESC>1G0i#!/usr/bin/python
+iab vpyd <ESC>1G0i#!/usr/bin/python<CR><CR>import os<CR><CR>def blah():<CR>    #blah
+
+" vppack = videkah perl package file header.
+iab vpack <esc>1G0ipackage     ;<cr>use warnings;<cr>use strict;<cr>use Data::Dumper;<cr><esc>
+iab vpackage <esc>1G0ipackage     ;<cr>use warnings;<cr>use strict;<cr>use Data::Dumper;<cr><esc>
+
+" vpdd  = videkah perl data dumper
+iab vpdd <ESC>0iuse Data::Dumper;print STDERR "\nvidekahnum dumper of   =".Dumper (); # TODO rm this line<cr><ESC>klllllllllllllllllllllllllllllllllllllllllllllllllllllli
+
+" vpvl  = videkah perl venda log
+" the following is a Venda-r-ism :-
+iab vpvl <ESC>0imy ($karl_package, $karl_filename, $karl_line) = caller; Venda->current->log_func({ tracing => 1, msg => "karl - ", dumper => { caller => { file => $karl_filename, line => $karl_line, }, }, }); # TODO rm this line<cr><ESC>i
+
+" vpd  = videkah perl dumper ( if you already have use Data::Dumper somewhere )
+iab vpd <ESC>0iprint STDERR "\nvidekahnum Dumper of   =".Dumper (); # TODO rm this line<cr><ESC>klllllllllllllllllllllllllllllllllllli
+
+" vdb = videkah dbnote
+iab vdb <ESC>0idbnote( -1 ,    ); # TODO rm this line<cr><ESC>kllllllllllll=
+
+" vpp = videkah perl print
+iab vpp <ESC>0iprint STDERR "\nvidekahnum    \n"; # TODO rm this line<cr><ESC>kllllllllllllllllllllllllllli
+
+" vpr = videkah perl remove !
+iab vpr      <ESC>A # TODO rm this line<cr>
+" vprmthis  = videkah perl rm this
+iab vprmthis <ESC>A # TODO rm this line<cr>
+
+" vplh  = videkah perl look here
+iab vplh <esc>0i  #### videkah looking here. # TODO rm this line<cr><ESC>i
+map <Leader>l /videkah looking here<cr>
+
+" vpod  = videkah perl pod
+iab vpod <ESC>0i<cr>=item head2<cr><cr>B<Description><cr><cr>B<Parameters><cr><cr>=over<cr><cr>=item C<...><cr><cr>=back<cr><cr>B<Returns><cr><cr>B<Throws><cr><cr>=cut<cr><cr><esc>0kkkkkkkkkkkkkkkkkkki
+
+" vptr  = videkah perl trace
+iab vptr     <ESC>0i<cr>use Devel::StackTrace; print STDERR Devel::StackTrace->new->as_string; # TODO rm this line<cr><ESC>i
+iab vptrace  <ESC>0i<cr>use Devel::StackTrace; print STDERR Devel::StackTrace->new->as_string; # TODO rm this line<cr><ESC>i
+
+" vprebase  = videkah perl rebase
+iab vprebase <ESC>0irebase away this commit<cr><ESC>i
+
+" vpds  = videkah perl data show
+iab vpds  <ESC>0i<cr>use Data::Show;<CR>show<esc>i
+
+" vpbm  = videkah perl benchmark
+iab vpbm  <ESC>0i<cr>use Benchmark qw( cmpthese );<CR><CR>cmpthese -10, {<CR>};<cr><ESC>i
+
+" vpsmcm  = videkah perl smart comments.
+iab vpsmcm    <ESC>0i<cr>use Smart::Comments;<CR>###<cr><esc>i
+
+" vptests  = videkah perl tests
+iab vptests   <ESC>0i<cr>use Test::Simple 'no_plan';<cr><esc>i
+" TODO just add all the common test modules to one iab
+" vptestm  = videkah perl
+iab vptestm   <ESC>0i<cr>use Test::More 'no_plan';<cr>use Test::Deep;<cr><esc>i
+
+" vp  = videkah perl pause . i.e. wait for some user STDIN typing .
+iab vpause   <ESC>0i<cr>print STDERR "\nvidekahnum . paused . ctrl-d to continue\n"; @crap=<STDIN>; # TODO rm this line<cr><ESC>i
+" vp  = videkah perl pause , with the my
+iab vpausemy <ESC>0i<cr>my @crap; # TODO rm this line<cr>print STDERR "\nvidekahnum . paused . ctrl-d to continue\n"; @crap=<STDIN> ; # TODO rm this line<cr><ESC>i
+
+" the following is a Venda-r-ism ....
+" vp  = videkah perl do not run in transaction function
+iab vpdonotrun <ESC>0i<cr>sub doNotRunInTransaction { 1 } # TODO rm this line<cr><ESC>
+
+"" <space>n keymapping is reservered for the videkahnum in the vimrc_khoskin file
+nnoremap <Space>n :call RenumberVidekahnumInFile()<cr>
+
+function! RenumberVidekahnumInFile ()
+
+" TODO need to make sure this only runs on buffers that are NOT videkah-buffers.
+
+"    echo '##########################'
+"    echo 'videkahnum-[renum]bering !!!'
+"    echo '##########################'
+    let orig_line = line('.')
+    exec 0
+
+    " so this matches lines with something like :-
+    " print STDERR "videkahnum
+    " in the line.
+
+    " it then goes and splits the line at the point .
+    " removes any old linenumbers
+    " and inserts a new line-number.
+
+    let prefix_printvidekahnum_regex = '^.\{-}print\s\+STDERR\s\+\("\|'."'".'\)\\*n*videkahnum'
+
+    echo "#"
+    echo "###################################"
+    echo "Renumbering the videkahnum lines ...."
+    echo "###################################"
+
+    " TODO back search for the /^sub\s\+\w\+/ line . get the sub name, and put it in between the ()
+
+    while (search(prefix_printvidekahnum_regex, 'W'))
+        let linestr = getline('.')
+        let frontlinestr =  matchstr( linestr , prefix_printvidekahnum_regex )
+
+        let endlinestr = substitute(linestr, prefix_printvidekahnum_regex , '', '' )
+
+        " (< .... >)  brackets indicate the numbered section in a line that needs removing and replacing
+
+        let endlinestr = substitute(endlinestr , '\s*(<.\{-}>)\s*', '', '' )
+
+        " TODO the following line needs removing once we've changed all the brackets over to the (< >) style.
+        let endlinestr = substitute(endlinestr , '^\s*(.\{-})\s*', '', '' )
+
+        call setline('.', frontlinestr.' (< '.@%.':'.line('.').': >) '.endlinestr )
+
+        echo "renumbered ".line('.')
+
+    endwhile
+
+    echo "########################################"
+    echo "FINISHED Renumbering the videkahnum lines "
+    echo "########################################"
+
+    exec orig_line
+
+endfunction
+
+"=====[ Correct common mistypings on-the-fly ]=======================
+
+iab    retrun  return
+iab     pritn  print
+iab     pirtn  print
+iab       teh  the
+iab      liek  like
+iab  liekwise  likewise
+iab      Pelr  Perl
+iab      pelr  perl
+iab      moer  more
+iab  previosu  previous
+
+

@@ -1,0 +1,32 @@
+"
+" You also need to look into the ./install.me.pl file as well as this one.
+
+" So all the following assume that ~/.vim/videkah is symlinked to the git-checkout.
+" see the ./install.me.pl for details of the symlinks
+
+" To get videkah working in your vim you either need to add a line to
+" your ~/.vimrc or to create a ~/.vimrc that is a symlink to either
+" this file or $HOME/.vim/videkah/bin/vimrc_videkah_source_this
+
+""""""""""""""""""""""""""""""""
+" Adding a line to your ~/.vimrc
+""""""""""""""""""""""""""""""""
+" add the following to your ~/.vimrc
+"source $HOME/.vim/videkah/bin/vimrc_videkah_source_this
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""
+" making your ~/.vimrc a symlink to this file
+" ( this is what the ./install.me.pl script does )
+""""""""""""""""""""""""""""""""""""""""""""""""""
+" ( at a shell prompt )
+" cd ~
+" ln -s ~/.vim/videkah/vimrc_in_home ~/.vimrc
+"    OR
+" ln -s ~/.vim/videkah/bin/vimrc_videkah_source_this ~/.vimrc
+
+
+" and please leave this line here for those that source this file :-
+source $HOME/.vim/videkah/bin/vimrc_videkah_source_this
+"
+

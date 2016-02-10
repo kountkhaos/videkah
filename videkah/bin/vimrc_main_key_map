@@ -1,0 +1,269 @@
+""""""""""""""""""""""""""""""""""""""""
+" function f keys :-
+"""""""""""""""""
+
+" f1 is help in gnome terminal and hard to use.
+
+" f2 = (echo) show current file name
+nnoremap <f2>     :echo @%<cr>
+
+" <f3><f3> show me the buffer list :-
+nnoremap <F3><f3> :buffers<cr>:b<Space>
+" <f3> switch buffers :-
+nnoremap <f3>     :b #<cr>
+
+""""""""""""""""""
+" ~/.vim/plugin/taglist.vim STUFF. Nought to do with videkah.
+" this is to do with the plugin TagList, nothing to do with videkah, and is in ~/.vim/plugin/taglist.vim
+" TODO find a better place for these non-videkah key mappings.
+" the show-file-subs button
+nnoremap  <F4>  :TlistToggle<cr>
+"let Tlist_File_Fold_Auto_Close = 1
+" following line opens with list TlistToggle on
+"let Tlist_Auto_Open = 1
+""""""""""""""""""
+" NERDTree , nought to do with videkah  ( also leader-e . e for explorer, as in file explorer.)
+" ~/.vim/plugin/NERD_tree.vim
+nnoremap <f5>      :NERDTree<cr>
+nnoremap <Leader>e :NERDTree<cr>
+" TODO find a better place for these non-videkah key mappings.
+""""""""""""""""""
+
+" f6 quit
+nnoremap <f6> :q<cr>
+
+" f7 is defined in vimrc_videkah, because it is used in videkah for running stuff (like deploying code with some script)
+
+" f8 is the quitter or quit-and-reload key
+nnoremap <f8> :call QuitNSave()<cr>
+function! QuitNSave()
+    exec ":w!"
+    exec ":qa!"
+endfunction
+" <f8><f8> calls a videkah quit-and-reload function . so that has moved to the vimrc_videkah
+
+nnoremap <f9> :w<cr>
+
+" f10 shows up the gnome file-edit-view-etc... menus and is hard to use by vim
+" f11 is full screen in gnome terminal and is hard to use by vim
+
+" <f12> toggle paste mode in vim
+set pastetoggle=<s-F12>
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" <Leader> key stuff.
+"""""""""""""""""""""
+
+" <Leader>a is used by perlstacktrace "add" point.
+
+nnoremap <Leader>b :echo "leader b unused"<cr>
+
+nnoremap <Leader>c :call ToggleTextWidth()<cr> " c for column width
+
+set textwidth=800                    "Wrap at column 78
+
+function! ToggleTextWidth()
+  if &textwidth <= 80
+
+    set   textwidth=8000
+    echo "textwidth = 8000"
+    call TextWidthHighlighting()
+
+  else
+
+    set   textwidth=80
+    echo "textwidth = 80"
+    call TextWidthHighlighting()
+
+  endif
+endfunction
+
+function! TextWidthHighlighting()
+
+    if exists( "w:m1" )
+        call matchdelete(w:m1)
+        call matchdelete(w:m2)
+    endif
+
+    let w:m1=matchadd('Search', '\%<'.&textwidth.'v.\%>'.(&textwidth-3).'v', -1)
+    let w:m2=matchadd('ErrorMsg', '\%>'.&textwidth.'v.\+', -1)
+
+endfunction
+
+""""" YUCK ! " map <Leader>ca :%s/^/#/g<cr>:%s/^#\+/#/g<cr>
+
+nnoremap <Leader>d :call DateStamp()<cr>
+
+function! DateStamp()
+    echo "Date Stamp 0 -> 4"
+    echo "(q) quit "
+    echo "(1) hh:mm_yyyy-mm-dd"
+    echo "(2) yyyy-mm-dd_hh:mm"
+    echo "(3) dddd ddth mmmm yyyy"
+    echo "(4) dddd ddth mmmm yyyy AND yyyy-mm-dd"
+
+    let dtype = DateStamp_select()
+
+    let ts=1
+
+    if dtype == 4
+        " special case. it pastes at the begining of the line.
+        let ts = "#############################\n".strftime("%A %d %B %Y")."\n".strftime("%Y-%m-%d")."\n"."-----------------------------\n"
+        exec "normal 0i".ts
+        return
+    endif
+
+    if dtype == 'q'
+        return
+    endif
+    if dtype == 1
+        let ts = strftime("%H:%M_%Y-%m-%d")
+    endif
+    if dtype == 2
+        let ts = strftime("%Y-%m-%d_%H:%M")
+    endif
+    if dtype == 3
+        let ts = strftime("%A %d %B %Y")
+    endif
+
+    exec "normal i".ts
+
+endfunction
+
+function! DateStamp_select()
+
+    let prompt_msg = "enter q or 1 -> 4 please"
+
+    let inputvalue = ""
+
+    while  ( inputvalue == "" || ( empty ( matchstr( inputvalue , '^[q1-4]$')) ) )
+
+        let inputvalue = PromptGetInput(prompt_msg. " (q , 1 -> 4) ? " )
+        if ( inputvalue == "" || ( empty ( matchstr( inputvalue , '^[q1-4]$')) ) )
+            echo "\n"
+            echo "Only ".prompt_msg
+        endif
+    endwhile
+
+    return inputvalue
+
+endfunction
+
+
+" <leader>e is used for NERDTree's file explorer, search for NERDTree in this file.
+
+nnoremap <Leader>f :echo "leader f unused"<cr>
+" <Leader>f TODO a way of searching for the last search string and find the next open buffer with the last search string, and open that buffer.
+
+nnoremap <Leader>g :Gblame<cr>
+
+" leader-h no-syntax-highlighting . Also known as 'hugo' / 'highlighting' button ( hence h )
+nnoremap <Leader>h :if exists("syntax_on") <Bar> syntax off <Bar> else <Bar> syntax on <Bar> endif <CR>:echo @%<cr>
+
+" TODO , what the frick does set paste do ? FIND OUT !
+nnoremap <Leader>i :echo "leader i unused"<cr>
+" map <Leader>i :set paste<cr>i
+
+nnoremap <Leader>j :echo "leader j unused"<cr>
+
+nnoremap <Leader>k :echo "leader k unused"<cr>
+
+""""" <Leader>l /videkah looking here<cr> " is already defined elsewhere in the vimrc_videkah_iab_debug
+
+" <Leader>m is being used to toggle mouse usage below.
+
+" leader-n : line numbering
+nnoremap <Leader>n :set invnumber<cr>
+
+" leader-o : re-open-file
+nnoremap <Leader>o :e<cr>
+
+nnoremap <Leader>p :echo "leader p unused"<cr>
+
+nnoremap <Leader>q :echo "leader q unused"<cr>
+
+"<leader>r set in another file
+
+" leader-s : see below
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" splitting windows, and nav between the windows.
+" leader-s : split window horizontally
+nnoremap <Leader>s :split<cr>
+
+"nnoremap <Leader>t :echo "leader t unused"<cr>
+nnoremap <Leader>t mz:execute TabToggle()<CR>'z
+"nnoremap <Leader>t :call execute TabToggle()<CR>
+"nmap <F9> mz:execute TabToggle()<CR>'z
+
+set softtabstop=4
+set shiftwidth=4
+set expandtab
+" allow toggling between local and default mode
+function! TabToggle ()
+  if &expandtab
+    set shiftwidth=8
+    set softtabstop=0
+    set noexpandtab
+    echo "tab mode. 8 char width tab"
+  else
+    set shiftwidth=4
+    set softtabstop=4
+    set expandtab
+    echo "tab mode. 4 spaces per tab"
+  endif
+endfunction
+
+
+
+nnoremap <Leader>u :echo "leader u unused"<cr>
+
+" leader-v : split window vertically
+nnoremap <Leader>v :vsplit<cr>
+"" this doesn't work :map <1-LeftMouse>v :vsplit<cr>
+
+nnoremap <Leader>w :echo "leader w unused"<cr>
+
+
+nnoremap <Leader>x :echo "leader x unused"<cr>
+nnoremap <Leader>y :echo "leader y unused"<cr>
+nnoremap <Leader>z :echo "leader z unused"<cr>
+"alt-s   strip trailing spaces
+"map <S-F12> :%s/\s\+$//
+
+" move with ctrl up or down ( when you have split windows )
+nnoremap <silent> <A-Up> :wincmd k<CR>
+nnoremap <silent> <A-Down> :wincmd j<CR>
+nnoremap <silent> <A-Left> :wincmd h<CR>
+nnoremap <silent> <A-Right> :wincmd l<CR>
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" toggle the pesky mouse functionality
+nnoremap mm :call ToggleMouse()<CR>
+nnoremap <leader>m :call ToggleMouse()<CR>
+
+function! ToggleMouse()
+  if &mouse == 'a'
+    set mouse=
+    echo "Mouse usage disabled"
+  else
+    set mouse=a
+    echo "Mouse usage enabled"
+  endif
+endfunction
+
+
+"nnoremap <silent> <Leader>h
+"      \ :if exists('w:long_line_match') <Bar>
+"      \   silent! call matchdelete(w:long_line_match) <Bar>
+"      \   unlet w:long_line_match <Bar>
+"      \ elseif &textwidth > 0 <Bar>
+"      \   let w:long_line_match = matchadd('ErrorMsg', '\%>'.&tw.'v.\+', -1) <Bar>
+"      \ else <Bar>
+"      \   let w:long_line_match = matchadd('ErrorMsg', '\%>80v.\+', -1) <Bar>
+"      \ endif<CR>
+
+
+
+
+

@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# Karl khaos Hoskin
+# videkah # a vim ide !
+
+# a Karl specific videkah startup that sets titles in gnome shell,
+# using bits of automatin that aren't part of videkah.
+# This file is NOT to be distributed with videkah.
+
+if [ ! -d '.videkah' ] ; then
+    echo "cannot find .videkah dir"
+    exit 1
+fi
+
+if [ ! -f '.videkah/config' ] ; then
+    echo "cannot find .videkah/config file"
+    exit 1
+fi
+
+# TODOdon't allow videkah to run if another videkah is running at the current working directory location.
+
+source /etc/bash_completion.d/git
+
+GITPS1=`__git_ps1`
+
+git_prefix=`regex_git_ps1_prefix.pl "$GITPS1"`
+
+
+#videkahrun allows vim to create a file to say "reopen vim". and reload vimscripts etc.
+# currently vim is setup for a double <f8> press to write this file.
+videkahrun=".videkah/keep_videkah_open"
+
+touch $videkahrun
+
+while [ -f $videkahrun ]
+do
+
+    shortname=`regex_git_ps1.pl "$GITPS1"`
+
+    source $HOME/bin/set_title.bash "videkah $git_prefix $shortname"
+    rm $videkahrun
+
+    vim .videkah/config
+
+done
+
+source $HOME/bin/TITLEdefault.bash
+
+

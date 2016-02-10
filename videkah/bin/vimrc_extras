@@ -1,0 +1,449 @@
+"set smartindent
+
+
+
+"====[ Set up smarter search behaviour ]=======================
+
+"set background=dark
+colors default
+
+set incsearch       "Lookahead as search pattern is specified
+set ignorecase      "Ignore case in all searches...
+set smartcase       "...unless uppercase letters used
+set hlsearch        "Highlight all matches
+
+" cursor stuff .
+highlight iCursor guifg=cyan guibg=steelblue
+highlight Cursor guifg=white guibg=steelblue
+
+highlight EOLWS ctermbg=red guibg=red
+
+"=====[ trailing space highlight ]==========================
+"autocmd InsertEnter * syn clear EOLWS | syn match EOLWS excludenl /\s\+\%#\@!$/
+"autocmd InsertLeave * syn clear EOLWS | syn match EOLWS excludenl /\s\+$/
+"autocmd BufReadPost * syn clear EOLWS | syn match EOLWS excludenl /\s\+$/
+
+"autocmd InsertEnter * syn clear EOLWS | syn match EOLWS /\s\+\%#\@!$/
+"autocmd InsertLeave * syn clear EOLWS | syn match EOLWS /\s\+$/
+"autocmd BufReadPost * syn clear EOLWS | syn match EOLWS /\s\+$/
+
+augroup formatingExcessSpace
+    autocmd!
+    autocmd InsertEnter * syn clear EOLWS | match EOLWS /\s\+\%#\@!$/
+    autocmd InsertLeave * syn clear EOLWS | match EOLWS /\s\+$/
+    autocmd BufReadPost * syn clear EOLWS | match EOLWS /\s\+$/
+augroup END
+
+"set list
+"set listchars=trail:€
+
+
+set backspace=indent,eol,start      "BS past autoindents, line boundaries,
+                                    "     and even the start of insertion
+
+"=====[ Miscellaneous features (mainly options) ]=====================
+
+set title           "Show filename in titlebar of window
+set titleold=
+
+set nomore          "Don't page long listings
+
+set autoread        "Always reload buffer when external changes detected
+
+"           +--Disable hlsearch while loading viminfo
+"           | +--Remember marks for last 50 files
+"           | |   +--Remember up to 10000 lines in each register
+"           | |   |      +--Remember up to 1MB in each register
+"           | |   |      |     +--Remember last 1000 search patterns
+"           | |   |      |     |     +---Remember last 1000 commands
+"           | |   |      |     |     |
+"           v v   v      v     v     v
+set viminfo=h,'50,<10000,s1000,/1000,:1000
+
+set backspace=indent,eol,start      "BS past autoindents, line boundaries,
+                                    "     and even the start of insertion
+
+set fileformats=unix,mac,dos        "Handle Mac and DOS line-endings
+                                    "but prefer Unix endings
+
+
+set wildmode=list:longest,full      "Show list of completions
+                                    "  and complete as much as possible,
+                                    "  then iterate full completions
+
+set noshowmode                      "Suppress mode change messages
+
+set updatecount=10                  "Save buffer every 10 chars typed
+
+
+
+" Keycodes and maps timeout in 3/10 sec...
+set timeout timeoutlen=300 ttimeoutlen=300
+
+set thesaurus+=~/Documents/thesaurus    "Add thesaurus file for ^X^T
+set dictionary+=~/Documents/dictionary  "Add dictionary file for ^X^K
+
+
+set scrolloff=4                     "Scroll when 2 lines from top/bottom
+
+set ruler                           "Show cursor location info on status line
+
+" Use space to jump down a page (like browsers do)...
+"" nnoremap <Space> <PageDown>
+
+
+"=====[ Enable smartwrapping ]==================================
+
+" No smartwrapping in any of these files...
+"let g:SW_IGNORE_FILES = '.vimrc,*.vim,*.pl,*.pm,**/bin/**'
+
+" set comments-=s1:/*,mb:*,ex:*/      "Don't recognize C comments
+" set comments-=:XCOMM                "Don't recognize lmake comments
+" set comments-=:%                    "Don't recognize PostScript comments
+" set comments-=:#                    "Don't recognize Perl/shell comments
+" set comments+=fb:*                  "Star-space is a bullet
+" set comments+=fb:-                  "Dash-space is a bullets
+
+set formatoptions-=cro
+
+set wrapmargin=2                            "Wrap 2 characters from the edge of the window
+
+
+" need a quick way of switching on and off autoindent and smartindent
+
+"map . :set autoindent<cr>:set smartindent<cr>
+"map , :set noautoindent<cr>:set nosmartindent<cr>
+
+"set autoindent                              "Retain indentation on next line
+"set smartindent                             "Turn on autoindenting of blocks
+
+
+"set cinwords = ""                           "But not for C-like keywords
+inoremap # X<C-H>#|                         "And no magic outdent for comments
+
+
+"" nnoremap <silent> >> :call ShiftLine()<CR>| "And no shift magic on comments
+
+"ctrl-s to save :-D
+" DOESN'T WORK, need to switch off ctrl-s in TTY ... hmmm...
+"map   <C-s>  :w
+
+
+
+set tabpagemax=15
+" C-tab is the same as frickin tab . so the following doesn't work :-
+"map   <C-tab>  :b#<cr>:echo @%<cr>
+
+
+" move with ctrl up or down
+map   <C-up> <C-y>
+map   <C-down> <C-e>
+
+
+
+let &titlestring = $TITLE
+if &term == "screen"
+  set t_ts=^[k
+  set t_fs=^[\
+endif
+if &term == "screen" || &term == "xterm"
+  set title
+endif
+
+"====[ Use persistent undo ]=================
+if has('persistent_undo')
+    set undodir=$HOME/tmp/.VIM_UNDO_FILES
+    set undolevels=5000
+    set undofile
+endif
+
+"TODO: remap u to prompt when first undoing into a previous session's history
+" (probably by calling undotree when the buffer is loaded,
+"  remembering the current sequence number, and comparing it on each undo
+
+
+"====[ Goto last location in non-empty files ]=======
+
+
+"====[ I'm sick of typing :%s/.../.../g ]=======
+
+nmap S  [Shortcut for :s///g]  :%s//g<LEFT><LEFT>
+vmap S                         :s//g<LEFT><LEFT>
+
+
+"====[ Toggle visibility of naughty characters ]============
+
+" Make naughty characters visible...
+" (uBB is right double angle, uB7 is middle dot)
+" KARL : i find this painful on copy n paste operations.
+"exec \"set lcs=tab:\uBB\uBB,trail:\uB7,nbsp:~\"            <remove the \ from slash-double-quotes
+
+"augroup VisibleNaughtiness
+"    autocmd!
+"    autocmd BufEnter  *       set list
+"    autocmd BufEnter  *.txt   set nolist
+"    autocmd BufEnter  *.vp*   set nolist
+"    autocmd BufEnter  *       if !&modifiable
+"    autocmd BufEnter  *           set nolist
+"    autocmd BufEnter  *       endif
+"augroup END
+
+
+
+"=====[ Make Visual modes work better ]==================
+
+" Visual Block mode is far more useful that Visual mode (so swap the commands)...
+" err , I don't think so !! (KARL)
+
+"nnoremap v <C-V>
+"nnoremap <C-V> v
+
+"vnoremap v <C-V>
+"vnoremap <C-V> v
+
+
+
+"Square up visual selections...
+set virtualedit=block
+
+" Make BS/DEL work as expected in visual modes (i.e. delete the selected text)...
+vmap <BS> x
+
+" Make vaa select the entire file...
+vmap aa VGo1G
+
+" When shifting, retain selection over multiple shifts...
+"vmap <expr> > KeepVisualSelection(">")
+"vmap <expr> < KeepVisualSelection("<")
+"vnoremap <expr> > KeepVisualSelection(">")
+"vnoremap <expr> < KeepVisualSelection("<")
+
+vnoremap > ><CR>gv
+vnoremap < <<CR>gv
+
+function! KeepVisualSelection(cmd)
+    if mode() ==# "V"
+        return a:cmd . "gv"
+    else
+        return a:cmd
+    endif
+endfunction
+
+" Temporarily add a column indicator when inserting or appending in visual mode...
+" (Should use <C-O> instead, but it doesn't seem to work)
+"vnoremap <silent>  I  I<C-R>=TemporaryColumnMarkerOn()<CR>
+"vnoremap <silent>  A  A<C-R>=TemporaryColumnMarkerOn()<CR>
+
+"function! TemporaryColumnMarkerOn ()
+"    let g:prev_cursorcolumn_state = g:cursorcolumn_visible ? 'on' : 'off'
+"    call Toggle_CursorColumn('on')
+"    inoremap <silent>  <ESC>  <ESC>:call TemporaryColumnMarkerOff(g:prev_cursorcolumn_state)<CR>
+"    return ""
+"endfunction
+
+"function! TemporaryColumnMarkerOff (newstate)
+"    call Toggle_CursorColumn(a:newstate)
+"    iunmap <ESC>
+"endfunction
+
+"==== configure the cursor
+
+highlight Cursor guifg=white guibg=black
+highlight iCursor guifg=white guibg=steelblue
+set guicursor=n-v-c:block-Cursor
+set guicursor+=i:ver100-iCursor
+set guicursor+=n-v-c:blinkon0
+set guicursor+=i:blinkwait10
+
+
+
+"#########################################################################
+" shift-tab = previous  tab
+map   <S-tab>  :bprev<cr>:echo @%<cr>
+
+" tab = next tab
+map   <tab>    :bnext<cr>:echo @%<cr>
+
+map <f12> :call Browser()<CR>
+function! Browser ()
+"    " attempt to find an http[s] link in the current line
+    let line = getline (".")
+    let httplink = matchstr (line, "http[s]*://[^ ,;\t]*")
+"    if httplink ==""
+"        let httplink = matchstr (line, "www\.[^ ,;\t]*")
+"    endif
+
+"    " Venda specific : look for a 4 or more digit number and assume it's an rt ticket number
+"    " only if we don't already have a link to open.
+"    if httplink == ""
+"        let matchnum = matchstr (line, "[0-9][0-9][0-9][0-9][0-9]*")
+"        if matchnum != ""
+"            let httplink = "http://rt.uk.venda.com/Ticket/Display.html?id=".matchnum
+"        endif
+"    endif
+"
+    " if we've got something to open , open it in firefox
+    if httplink != ""
+        "exec( ":silent !firefox '".shellescape(httplink,0)."' 2>/dev/null >/dev/null &" )
+        let shellcmdrun = "firefox '".httplink."' 2>/dev/null >/dev/null &"
+        call system( shellcmdrun )
+        exec ":redraw!"
+        echo "found link : ".httplink
+    else
+        echo "Couldn't http link in current line"
+    endif
+
+endfunction
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" whitespace and commenting functions. Not really a core part of videkah navigation
+"
+vmap <silent> <Leader><space> <esc>:call ClearTrailingWhiteSpace_visual()<cr>
+
+nmap <silent> <leader><space> <esc>:call Ctwsln()<cr>
+
+nmap <silent> <leader><space><space> <esc>:call Ctwsbufnorm()<cr>
+
+"Ctwsln = clear trailing whitespace line normal
+function! Ctwsln()
+    " and also clear Microsoft ^M end-of-line chars
+
+    let linestr = getline('.')
+    let linestr = substitute ( linestr, '\r$'  ,'','' )
+    let linestr = substitute ( linestr, '\s\+$','','' )
+    call setline( '.' , linestr )
+
+endfunction
+
+function! ClearTrailingWhiteSpace_visual()
+    " and also clear Microsoft ^M end-of-line chars
+
+    let [lnum1, col1] = getpos("'<")[1:2]
+    let [lnum2, col2] = getpos("'>")[1:2]
+
+    let ln = lnum1
+
+    while ln <= lnum2
+
+        let linestr = getline(ln)
+
+        " strip off ^M and then the trailing spaces :-
+        let linestr = substitute ( linestr, '\r$'  ,'','' )
+        let linestr = substitute ( linestr, '\s\+$','','' )
+
+        call setline( ln, linestr )
+        let ln += 1
+    endwhile
+
+endfunction
+
+" ClearTrailingWhiteSpace_in_buffer_normal
+function! Ctwsbufnorm()
+    " and also clear Microsoft ^M end-of-line chars
+    " works on the entire current buffer
+
+    " if the file extension is .pl .pm .py .js then don't do this .
+    let ext = expand('%:e') "get the file extension
+    if ( ext ==? 'pl' || ext ==? 'pm' || ext ==? 'py' || ext ==? 'js' || ext ==? 'c')
+        echo "This file has an extension of '".ext."'"
+        echo "Clearing all trailing whitespace could make a big git diff"
+
+        let yORn = PromptYesOrNo("Do you want to clear ? " )
+
+        if ( yORn ==? 'n' )
+            return
+        endif
+    endif
+
+    silent! exec '%s/\r$//g'
+    silent! exec '%s/\s\+$//g'
+    exec ':redraw'
+
+endfunction
+
+
+" <leader>r set in another file.
+
+" adding and removing hashes at the front of a line functions
+nmap <silent>  <leader># <esc>:call Hashline_normal()<cr>
+vmap <silent>  <leader># <esc>:call Hashline_visual()<cr>
+vmap <silent>  <leader>## <esc>:call RemoveLeadingHashline_visual('one')<cr>
+vmap <silent>  <leader>### <esc>:call RemoveLeadingHashline('multi')<cr>
+
+
+function! Hashline_normal()
+
+    let commentchar = GetCommentCharForFileExt()
+    exec "normal \<esc>0i".commentchar."\<esc>j0i".commentchar."\<esc>j0i".commentchar."\<esc>j"
+    "nmap <leader># <esc>0i#<esc>j0i#<esc>j0i#<esc>j
+endfunction
+
+
+function! Hashline_visual()
+
+    let commentchar = GetCommentCharForFileExt()
+
+    let [lnum1, col1] = getpos("'<")[1:2]
+    let [lnum2, col2] = getpos("'>")[1:2]
+
+    let ln = lnum1
+
+    while ln <= lnum2
+        call setline(ln,commentchar.getline(ln))
+        let ln += 1
+    endwhile
+
+endfunction
+
+
+" this is a bit pointless <ctrl>v  visual mode lets you delete a column of characters easily.
+function! RemoveLeadingHashline_visual(oneOrMulti)
+
+    let [lnum1, col1] = getpos("'<")[1:2]
+    let [lnum2, col2] = getpos("'>")[1:2]
+
+    let commentchar = GetCommentCharForFileExt()
+
+    let ln = lnum1
+
+    while ln <= lnum2
+
+        if ( a:oneOrMulti ) == 'multi'
+            call setline( ln , substitute(getline(ln),'^\'.commentchar.'\+',"","") )
+        else
+            call setline( ln , substitute(getline(ln),'^\'.commentchar,"","") )
+        endif
+
+        let ln += 1
+    endwhile
+
+endfunction
+
+function! GetCommentCharForFileExt()
+    "what is the file extension ?
+        " if it is sql use a --
+        " if it is js  use a //
+
+        " everything else currently use a #
+    " this is a limited set , but works for me for perl, python, sql and js.
+
+    let commentchar='#'
+    if ( expand('%:e') ==? 'sql' )
+        let commentchar='--'
+    endif
+
+    if ( expand('%:e') ==? 'js' )
+        let commentchar='//'
+    endif
+
+    if ( expand('%:e') ==? 'c' )
+        let commentchar='//'
+    endif
+
+    return commentchar
+
+endfunction
+
+

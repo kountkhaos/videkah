@@ -1,0 +1,2059 @@
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Videkah . by khaos . made sometime April -> October 2014
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Beginning of videkah stuff .
+""""""""""""""""""""""""""""""
+" do not source this file directly source the file that conditional
+" includes this file with
+"    if ( bufnr('.videkah/config') != -1 )
+"        source $HOME/.vim/videkah/bin/vimrc_videkah
+"    endif
+"
+""""""""""""""""""""""""""""""
+"space-<something> keypresses
+""""""""""""""""""""""""""""""
+" <space>  or <space>-<somekey> keypresses navigate around all the special videkah buffers.
+"" videkah <space>-something mappings.
+
+"<space>   navigates to the next videkah special buffer
+nnoremap <Space> :call SelectNext_videkah_special_buffer()<cr>
+
+"These all navigate to the buffer with the symbolic name of videkah_filelist :-
+nnoremap <Space><space> :call Select_g_videkah_buffer('videkah_filelist')<cr>
+nnoremap <Space>f :call Select_g_videkah_buffer('videkah_filelist')<cr>
+
+"This adds the current buffer filename to the top of the filelist :-
+nnoremap <Space>a :call AddCurrentBufferNameToFileList()<cr>
+
+"These all navigate to the buffer with the symbolic name of videkah_perl_stacktrace :-
+nnoremap <Space>t :call Select_g_videkah_buffer('videkah_perl_stacktrace')<cr>
+
+"These all navigate to the buffer with the symbolic name of videkah_perl_static_class_hierarchy :-
+nnoremap <Space>h :call Select_g_videkah_buffer('videkah_perl_static_class_hierarchy')<cr>
+
+"These all navigate to the buffer with the symbolic name of videkah_perl_ackgrep :-
+nnoremap <Space>g :call Select_g_videkah_buffer('videkah_perl_ackgrep')<cr>
+
+"These all navigate to the buffer with the symbolic name of videkah_runlist :-
+nnoremap <Space>r :call Select_g_videkah_buffer('videkah_runlist')<cr>
+
+"These all navigate to the buffer with the symbolic name of videkah_git_diff :-
+nnoremap <Space>d :call Select_g_videkah_buffer('videkah_git_diff')<cr>:call Videkah_git_diff("HEAD")
+"diff-todo key press ( i.e. RM lines, todos, excess eol space ):-
+nnoremap <Space>dd :call Videkah_create_git_diff_removelines_buffer()<cr>
+
+"These all navigate to the buffer with the symbolic name of videkah_git_diff :-
+nnoremap <Space>dr :call Videkah_create_git_diff_removelines_buffer()<cr>
+
+"" <space>n keymapping is reservered for the khaosnum in the vimrc_khoskin file
+
+"These all navigate to the buffer with the symbolic name of videkah_config :-
+nnoremap <Space>c :call Select_g_videkah_buffer('videkah_config')<cr>
+
+"This is to copy the current-filename, its line-number, and its contents into the @" register
+" y for "yank" this location , the space leader , coz its to do with videkah navigation :)
+nnoremap <Space>y :call CopyCurrentLocationToMainRegister()<cr>
+nnoremap <Space>u :call CopyCurrentLocationToMainRegister_filelink()<cr>
+"
+"
+"
+"""""""""""""""""""""""""""""""
+" Navigating from a file ( a non videkah file, i.e. one you're editting )
+"""""""""""""""""""""""""""""""
+" return selection
+" return-return selection
+"
+" return visual-selection
+" return-return visual-selection
+"
+"""""""""""""""""""""""""""""""
+" Navigating from filelist (symbolic name : videkah_filelist)
+""""""""""""""""""""""""""""""
+" return selection
+" return-return selection
+"
+" return visual-selection
+" return-return visual-selection
+"
+"""""""""""""""""""""""""""""""
+" Navigating from runlist (symbolic name : videkah_runlist)
+""""""""""""""""""""""""""""""
+" return selection
+" return-return selection
+"
+" return visual-selection
+" return-return visual-selection
+"
+"""""""""""""""""""""""""""""""
+" Navigating from runlist (symbolic name : videkah_git_diff)
+""""""""""""""""""""""""""""""
+" return selection
+" return-return selection
+"
+" return visual-selection
+" return-return visual-selection
+"
+"""""""""""""""""""""""""""""""
+" Navigating from a perl_stacktrace (symbolic name : videkah_perl_stacktrace)
+"""""""""""""""""""""""""""""""
+" return selection
+" return-return selection
+"
+" return visual-selection
+" return-return visual-selection
+"
+"""""""""""""""""""""""""""""""
+" Navigating from a perl_static_class_hierarchy (symbolic name : videkah_perl_static_class_hierarchy)
+"""""""""""""""""""""""""""""""
+" return selection
+" return-return selection
+"
+" return visual-selection
+" return-return visual-selection
+"
+"""""""""""""""""""""""""""""""
+" Navigating from a perl_ackgrep (symbolic name : videkah_perl_ackgrep)
+"""""""""""""""""""""""""""""""
+" return selection
+" return-return selection
+"
+" return visual-selection
+" return-return visual-selection
+"
+"
+"
+let g:Videkah_todo_rm_this_line_suffix = '# TODO rm this line'
+let g:Videkah_todo_rm_this_line_regex = g:Videkah_todo_rm_this_line_suffix.'$'
+let g:videkah_git_diff_TODO = ".videkah/git_diff_TODO"
+let g:videkah_last_git_diff_param = "HEAD"
+
+"source $HOME/.vim/videkah/bin/vimrc_libpaths
+let g:videkah_config_buffer_name = '.videkah/config'
+let g:videkah_config_value = []
+
+" the dir at videkah startup.
+let g:videkah_start_dir = getcwd()
+
+" we need autowrite, the buffer swapping in videkah is painful without it.
+set autowrite       "Save buffer automatically when changing files
+
+augroup videkah
+    autocmd!
+    autocmd BufLeave .videkah/config call Populate_videkah_config()
+augroup END
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" videkah <f-key> mappings
+""""""""""""""""""""""""""
+" the following line is also duplicated in the file that sources this one :-
+" map <f8> :qa<cr>
+map <f8><f8> :call QuitAndReloadVidekah()<cr>
+""""
+"map <f7> :!clear;cplist2RELEASE;cp /home/khoskin/runlist/rt182740-newUnFeb13 /home/khoskin/devweb-root-mount/export/home/khoskin/restartPOOL/RUNSTUFF<cr>
+"map <f7> :!clear;cplist2RELEASE;. /etc/bash_completion.d/git;runlist "`__git_ps1`"<cr>
+"map <f7> :!clear;cplist2RELEASE touch;cplist2HEAD touch<cr>
+"map <s-f7> :!clear;cplist2HEAD touch<cr>
+"map <f7> :!clear;cplist2TEST touch<cr>
+"map <f7> :!clear;cplist2HEAD touch<cr>
+"map <f7> :!clear;cplist2RELEASE touch<cr>
+"map <f7> :!clear;cplist2chef52 touch<cr>
+"map  <f7> :!clear;cplist2chef51 touch<cr>
+
+" TODO get f7 to run the top line of the runlist.
+map  <f7> :!clear;./install-to-pi-pi.bash pitest<cr>
+
+
+" TODO <f7> needs to map to a generic "run this option" function.
+" TODO need a prompt for the cplist2 options . I need to be able to deploy to more than one codeinst
+" in fact F7 could be a "run" command. and somewhere in videkah there is a list of commands to run.
+" some of these could be for deploying the code , others for well whatever script we want to regularly run.
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+vmap <return> :call OpenSomethingFromVisualSelection_n_Enter()<cr>
+" with the double return , just do the ack-grep search.
+vmap <return><return> :call SearchForVisualSelection_with_ackgrep()<cr>
+" 1 should be the filelist
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+function! SelectNext_videkah_special_buffer()
+    if ! IsVidekahMode()
+        echo ''
+        return ''
+    endif
+
+    " Loops over selecting the next special videkah buffer. operated with a single <space>
+    if ! exists("g:videkah_selected_buffer")
+        let g:videkah_selected_buffer = "videkah_config"
+    endif
+
+    " list of symbolic buffernames (well some of them are symbolic, others are the REAL thing, but these will change too ) :-
+    let videkah_list_of_buffers = [ "videkah_filelist", "videkah_runlist", "videkah_git_diff", "videkah_perl_stacktrace", "videkah_perl_static_class_hierarchy", "videkah_perl_ackgrep",  "videkah_config" ]
+
+    " find where our currently selected buffer is in the list of special videkah buffers.
+    let lcount = 0
+    let found = ''
+    for i in videkah_list_of_buffers
+        if i == g:videkah_selected_buffer
+            let found = lcount
+        endif
+        let lcount += 1
+    endfor
+
+    " we want to select the next special videkah buffer so :-
+    let found += 1
+
+    " if we've rolled of the end of buffers, rotate back around to the first one.
+    if found >= len(videkah_list_of_buffers)
+        let found = 0
+    endif
+
+    " now we have the buffer that is going to be the next videkah special buffer selected.
+    let g:videkah_selected_buffer = videkah_list_of_buffers[found]
+
+    call Select_g_videkah_buffer(g:videkah_selected_buffer)
+
+endfunction
+
+function! Select_g_videkah_buffer(change_to)
+    " select one of the buffers with a special meaning to videkah.
+    " the videkah_filelist , videkah_runlist , videkah_git_diff, videkah_config etc are symbolic names and not the ACTUAL name of the buffer.
+    " ALL attempts at opening at special videkah buffer should come through this function,
+    " since it does the translation from symbolic-name to actual name on the filing system.
+    " and where it is on the filing system is dependent on the config file
+    if ! IsVidekahMode()
+        echo ''
+        return ''
+    endif
+
+    if ( empty (g:videkah_config_value) || Trim(@%) == Trim(g:videkah_config_buffer_name) )
+        " so populate the videkah_config_value array either if it is empty
+        " or if the current buffer is videkah_config because it is probably
+        " going to change to something different, and this will populate any changes
+        call Populate_videkah_config()
+    endif
+
+    if ! a:change_to
+        let g:videkah_selected_buffer = a:change_to
+    endif
+
+    " "videkah_config" is a symbolic buffer name.
+    if g:videkah_selected_buffer == "videkah_config"
+        call TryAndOpenFileName(g:videkah_config_buffer_name)
+        echo "selected ".g:videkah_selected_buffer
+        return
+    endif
+
+    let real_filename = Get_videkah_buffer_real_filename(g:videkah_selected_buffer)
+
+    if real_filename == ''
+        return ''
+    endif
+
+    call TryAndOpenFileName(real_filename)
+    if ( g:videkah_selected_buffer != "videkah_git_diff" )
+        " a lazy way to stop the git_diff selection of buffer from echoing
+        echo "selected ".g:videkah_selected_buffer
+    endif
+
+endfunction
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" videkah SelectLineOn_ xxxxxx section.
+
+nmap <return>     :call SelectLineOn_dispatcher("keyb")<cr>
+map <2-LeftMouse> :call SelectLineOn_dispatcher("mouse")<cr>
+
+function! SelectLineOn_dispatcher(mouseORkeyb)
+    " the mouseORkeyb does naff all these days. I guess it can be removed.
+    if ! IsVidekahMode()
+        echo ''
+        return ''
+    endif
+
+    " The main SelectLineOn dispatch function.
+    " a single <return> is pressed on different buffers,
+    " and this will do different selections
+    " ( SelectLineOn_ actions )
+    "
+    if empty (g:videkah_config_value)
+        call Populate_videkah_config()
+    endif
+
+    " this function is called with a single <return> or <2-LeftMouse> click. In NON-visual mode.
+    " @% is the current filename
+
+    if IsCurrentVidekahBuffer("videkah_filelist")
+        return SelectLineOn_videkah_filelist()
+    endif
+
+    if IsCurrentVidekahBuffer("videkah_runlist")
+        return SelectLineOn_videkah_runlist()
+    endif
+
+    if IsCurrentVidekahBuffer("videkah_git_diff")
+        return SelectLineOn_videkah_git_diff()
+    endif
+
+    if IsCurrentVidekahBuffer("videkah_perl_stacktrace")
+        return SelectLineOn_videkah_perl_stacktrace()
+    endif
+
+    if IsCurrentVidekahBuffer("videkah_perl_static_class_hierarchy")
+        return SelectLineOn_videkah_perl_static_class_hierarchy()
+    endif
+
+    if IsCurrentVidekahBuffer("videkah_perl_ackgrep")
+        return SelectLineOn_videkah_perl_ackgrep()
+    endif
+
+    if ( Trim(@%) == Trim(g:videkah_git_diff_TODO) )
+        " TODO write a proper SelectLineOn for this buffer.
+        ""let currvisel = substitute(getline('.'),'^[# ]\+',"","") "remove leading spaces and hashes
+        ""return SelectLineOn_videkah_filelist_GUTS(currvisel,1)
+        return SelectLineOn_videkah_git_diff_TODO()
+    endif
+
+    " the videkah_config can't use IsCurrentVidekahBuffer because that relies
+    " on the videkah buffer being specified by stuff in the videkah_config so we have to :-
+    if ( Trim(@%) == Trim(g:videkah_config_buffer_name) )
+        " plus we don't do any navigation from the config buffer.
+        echo ''
+        return ''
+    endif
+
+    " so we aren't in a filelist, perlstacktrace or perl_static_class_hierarchy buffer or any special videkah buffer.
+    " lets try and do some stuff for any other file.
+    if ( SelectLineNo_GotoPerlUseModule() )
+        echo ''
+        return ''
+    endif
+
+    " so do a select like the filelist does, but remove leading space and #s coz they don't work on a filelist select.
+    let currvisel = substitute(getline('.'),'^\s*[#\s]\+',"","") "remove leading spaces and hashes
+    return SelectLineOn_videkah_filelist_GUTS(currvisel,1)
+
+    "echo "not navigating anywhere"
+
+endfunction
+
+function! SelectLineOn_videkah_filelist()
+    if ! IsVidekahMode()
+        return ''
+    endif
+
+    if ! IsCurrentVidekahBuffer("videkah_filelist")
+        echo "SelectLineOn_videkah_filelist() called, and we're not on the correct buffer"
+        return
+    endif
+
+    echo ''
+    let thisline = getline(".")
+
+    return SelectLineOn_videkah_filelist_GUTS(thisline,0) "we want this to open a new file/buffer , coz this is the REAL filelist select.
+
+endfunction
+
+function! SelectLineOn_videkah_filelist_GUTS(thisline, onlyOpenReadableFiles)
+    if ! IsVidekahMode()
+        return ''
+    endif
+
+"    echo "In SelectLineOn_videkah_filelist_GUTS"
+    let thisline = Trim(a:thisline)
+
+    " if this line is hashed out , don't navigate ANYWHERE !
+    if ( ! empty ( matchstr( thisline , '^\s*#')))
+        return
+    endif
+
+    " first lets see if we have an INSERTED or PROCESSED at the front of the line.
+    " this is really "stacktrace" selection. Do we want this in the filelist selection ? dunno. I guess its good for copy N pasted lines
+    if ( ! empty(matchstr(thisline,"^INSERTED")) || !empty(matchstr(thisline,"^PROCESSED")))
+        "PROCESSED 0 FILE=venda-modules/Venda/Payment/Mode.pm LINE=36 PACKAGE=Venda::Payment::Mode SUB=status
+
+        let fileORmodule = matchstr(getline('.'),'FILE=.*')
+        let fileORmodule = substitute(fileORmodule,'\s\+.*','','')
+        let fileORmodule = substitute(fileORmodule,'^FILE=','','')
+        let thesub = matchstr(getline('.'),'SUB=.*')
+        let thesub = substitute(thesub,'^SUB=','','')
+        "echo "fileORmodule=".fileORmodule."  :  thesub=".thesub
+        call GotoPerlModuleIfFileExists (fileORmodule,thesub)
+
+        if ( thesub == '' )
+            " try and goto the lineno.
+            let lineno = matchstr( thisline, 'LINE=\d\+')
+            if ( ! empty ( lineno ) )
+"                echo "lineno == ".lineno
+                let lineno = substitute(lineno, 'LINE=', '', '' )
+                exec lineno
+            endif
+        endif
+        return
+    endif
+
+    " this is really "class-hierarchy" selection. Do we want this in the filelist selection ? dunno. I guess its good for copy N pasted lines
+    " now for the class-hierarchy nav on a prefix of TREE on the line.
+    if ( ! empty (matchstr(getline("."),"^TREE ")))
+
+        let fileORmodule = substitute(getline('.'),'^TREE\s\+','','')
+        return GotoPerlModuleIfFileExists (fileORmodule,"")
+    endif
+
+    " TODO the following logic so :-
+    " if we have 'blahbuff:NUM:blahlinecontent' then select the buffer  blahbuff and goto the line NUM
+    " if we have 'blahbuff:blahlinecontent' then select the buffer blahbuff and search for blahlinecontent
+
+
+    " ackgrep like navigation :-
+
+
+    " FIXME . If the first occurence of : is part of a :: then don't do the "ackgrep" navigation. it is assumed if the first occurence of : is in a :: then the line is a package-name
+    let is_first_semi_colon_single = 1
+    let firstcolon = matchstr( thisline , ':\+' )
+    if ( ! empty (matchstr ( firstcolon , '^::')))
+        "echo "The first colon is double, so don't try and do an ackgrep navigation !!!"
+        let is_first_semi_colon_single = 0
+    endif
+
+    let filename = matchstr(thisline, '^.\{-}:')
+    if ! empty ( filename ) && is_first_semi_colon_single
+        " so if we have a filename , then there is a colon in the line, and if the is_first_semi_colon_single is set to 1 then this colon is a SINGLE colon, which means it is probably an ackgrep / grep type line ,
+        let filename  = substitute(filename , ':$', '','' )
+
+        let lineno = matchstr(thisline, ':\d\+:')
+
+        let do_lineno = 0
+        if filereadable(filename)
+            call TryAndOpenFileName( filename )
+            let do_lineno = 1
+        else
+            if (! a:onlyOpenReadableFiles )
+                call TryAndOpenFileName( filename )
+                let do_lineno = 1
+            endif
+        endif
+
+        if ( do_lineno )
+            if ! empty (lineno)
+
+                let lineno = substitute( lineno , ':$', '','' )
+                let lineno = substitute( lineno , '^:', '','' )
+                exec lineno
+            else
+                let searchfor = matchstr(thisline, ':.*')
+                let searchfor = substitute(searchfor, '^:', '','' )
+                echo "searching for ".searchfor
+                " if the searchfor is just whitespace in the line that is really hard to search for.
+                " search for a single parenthesis, curly or square braces is also pointless. just so many of them .
+                " TODO , the following doesn't seem to match an empty string.
+                let emptystr = substitute(searchfor, '\s*', '','')
+                """""if ( emptystr == "" || ! empty(matchstr(searchfor,'^\((\|);*,*\|{\|};*,*\|[\|];*,*\)$')))  " TODO can't get this regex working to try and stop searching on silly things
+                if ( emptystr == "" )
+                    echo "the searchfor failed. it can't search for somethings. you're going to have to navigate manually"
+                    return 0
+                endif
+
+                if (  search("^".searchfor ,"") )
+                    " do nothing ! We found it, so return 1.
+                    return 1
+                else
+                    echo "the searchfor failed. you're going to have to do it manually"
+                    return 0
+                endif
+            endif
+        endif
+        return ""
+    endif
+
+    " classic 'filelist' navigation :-
+"        " we are in the filelist so we'll try and open the current line.
+    if filereadable(thisline)
+        let retval = TryAndOpenFileName (thisline)
+        echo @%
+        return retval
+    else
+        if (! a:onlyOpenReadableFiles )
+            if ! GotoPerlModuleIfFileExists(thisline,'')
+               " so it is probably a new file , open the new empty buffer.
+                let retval = TryAndOpenFileName (thisline)
+                echo @%
+                return retval
+            endif
+        endif
+        echo @%
+        return
+    endif
+
+endfunction
+
+function! Navigate_to_file_and_anchor(thisline)
+    " new file:filename#anchor navigation
+
+    " return 1 if we DO nave to a file
+    " return undef if we don't nav to a file
+
+    "echo "New navigate to file and anchor"
+    "let filename = matchstr(a:thisline, 'file:[0-9a-zA-Z]#[0-9a-zA-Z]')
+    let fileNanchor = matchstr(a:thisline, 'file:[.\-_0-9a-zA-Z]\+\(#[.\-_:0-9a-zA-Z]\+\)*')
+    if ! empty ( fileNanchor )
+        let filename = substitute( fileNanchor , '^file:', '','' )
+        let filename = substitute( filename , '#.\+$', '','' )
+
+        let anchor   = substitute( fileNanchor , '^.\+#\+', '','' )
+        if ( empty ( matchstr( fileNanchor,'#' )))
+            let anchor = ""
+        endif
+
+        " echo "new nav. found-file = ".filename." | anchor = ". anchor
+
+        if filereadable(filename)
+            let retval = TryAndOpenFileName (filename)
+            if ( anchor != '' )
+                if ( search("^[ #]*".anchor ,"") )
+                    return 1
+                endif
+                " i don't think we'll ever get to the following match :
+                if ( search("^".anchor ,"") )
+                    return 1
+                endif
+            endif
+            return 1
+        else
+            echo "file ".filename." doesn't exist. Can't nav to file:".filename
+        endif
+
+    endif
+
+    return
+
+endfunction
+
+
+
+function! SelectLineOn_videkah_runlist()
+    if ! IsVidekahMode()
+        return ''
+    endif
+
+    if ! IsCurrentVidekahBuffer("videkah_runlist")
+        echo "SelectLineOn_videkah_runlist() called, and we're not on the correct buffer"
+        return
+    endif
+
+    " so if we are doing the select (<return> or double-mouse click) on a runlist line do the special stack trace stuff.
+    let run_from_basedir = Get_videkah_config('RUN_FROM_BASEDIR')
+
+    "echo "g start dir ".g:videkah_start_dir."      getcwd=".getcwd()
+
+    if ( ! g:videkah_start_dir )
+        let g:videkah_start_dir = getcwd()
+    endif
+
+    lcd g:videkah_start_dir
+
+    if ( run_from_basedir )
+        let $VIDEKAH_PATH = run_from_basedir
+    else
+        let $VIDEKAH_PATH = g:videkah_start_dir
+    endif
+    lcd $VIDEKAH_PATH
+
+    exec ':!'.getline('.')
+
+    let g:testcwd = getcwd()
+
+    " change back to basedir
+    let $VIDEKAH_PATH = g:videkah_start_dir
+    silent lcd $VIDEKAH_PATH
+
+endfunction
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"" git diff stuff.
+function! SelectLineOn_videkah_git_diff_TODO()
+
+    if ! IsVidekahMode()
+        return ''
+    endif
+
+    if ( Trim(@%) != Trim(g:videkah_git_diff_TODO) )
+        echo "SelectLineOn_videkah_git_diff_TODO() called, and we're not in the correct buffer"
+        return ""
+    endif
+
+    let currline = getline('.')
+    let extract    = Videkah_extract_gitdiff_TODO_row(currline)
+    let filename   = extract[1]
+    let lineno     = extract[0]
+    let actualline = extract[2]
+
+    if ( ! empty( matchstr( currline , '^##\s\+TODO\s\+##'  ) ) )
+        " we can only navigate to TODO lines.
+        call TryAndOpenFileName(filename)
+        exec lineno
+        return
+    endif
+
+    if ( ! empty( matchstr( currline , '^##\s\+SPACE\s\+##'  ) ) )
+        " These should all be automatically "de-spaced" when the git_diff_TODO buffer is generated
+        call TryAndOpenFileName(filename)
+        exec lineno
+        call setline('.', substitute(getline('.'),'\s\+$','',''))
+        return
+    endif
+
+    if ( ! empty( matchstr( currline , '^##\s\+RM\s\+##'  ) ) )
+        " so we can Delete-this-line , Navigate to it , Hash-all-rm-line, Un-hash-all-rm-lines, Delete-all-rm-lines
+
+        " TODO , could give an option to RM all the lines in the git_diff_TODO buffer, and remove the line from the buffer too.
+        " The offer could also be to ## out the lines that match "g:Videkah_todo_rm_this_line_regex" , and leave them in place.
+
+        let delORnav = PromptDeleteLineOrNavigateOrDelAllOrHashAll( )
+
+        if (delORnav == "d" )
+            call TryAndOpenFileName(filename)
+            exec lineno
+            if ( getline('.') == actualline )
+                exec ":".lineno."delete _"
+                call TryAndOpenFileName(g:videkah_git_diff_TODO)
+                exec ":".line('.')."delete _"
+            else
+                echo "We can NOT RM the LINE. the lines don't match ( have you editted this file since doing the git-diff? )"
+            endif
+            return
+        endif
+
+        if (delORnav == "n" )
+            call TryAndOpenFileName(filename)
+            exec lineno
+            return
+        endif
+
+        if (delORnav == "a" )
+            return Videkah_git_diff_TODO_MASS_RM_action("RM")
+        endif
+
+        if (delORnav == "h" )
+            return Videkah_git_diff_TODO_MASS_RM_action("HASH")
+        endif
+
+        if (delORnav == "u" )
+            return Videkah_git_diff_TODO_MASS_RM_action("UNHASH")
+        endif
+        return
+    endif
+
+endfunction
+
+function! Videkah_git_diff_TODO_MASS_RM_action(rm_hash_unhash)
+    if ! IsVidekahMode()
+        return ''
+    endif
+
+    " do some action (rm_hash_unhash) to all the ## RM ## lines, start from the bottom of the git-diff-TODO file , well because that's how the deletion is done.
+    " rm_hash_unhash can only be RM , HASH or UNHASH
+    "
+    " todo , really need a git commit before the MASS RM
+    " maybe it should check for a clean git status before it does a MASS RM
+    let rm_hash_unhash = a:rm_hash_unhash
+
+    if ( rm_hash_unhash != 'RM' &&  rm_hash_unhash != 'HASH' &&  rm_hash_unhash != 'UNHASH' )
+        echo "rm_hash_unhash must be either RM , HASH or UNHASH. programming error"
+        return
+    endif
+
+    echo "#"
+    echo "########################################"
+    echo "MASS ".rm_hash_unhash." !!!!"
+    echo "########################################"
+
+    call TryAndOpenFileName(g:videkah_git_diff_TODO)
+
+    let gitdiffTODOrow = line('$')
+
+    while ( gitdiffTODOrow > 0 )
+        let currline = getline(gitdiffTODOrow)
+
+        if ( ! empty( matchstr( currline , '^##\s\+RM\s\+##'  ) ) )
+
+            let extract    = Videkah_extract_gitdiff_TODO_row(currline)
+            let filename   = extract[1]
+            let lineno     = extract[0]
+            let actualline = extract[2]
+
+            " don't bother hashing blank lines
+            if ( rm_hash_unhash == 'HASH' ||  rm_hash_unhash == 'UNHASH' )
+                if ( Trim(actualline) != ''  )
+                    call TryAndOpenFileName(filename)
+                    let gtlin = getline(lineno)
+
+                    if ( Trim(gtlin) == Trim(actualline) )
+                        if ( rm_hash_unhash == 'UNHASH' )
+                            " so only leading single hashes will be removed , a double hash will stay FOREVAAAHHH !(forever)
+                            let new_gtlin = substitute( gtlin, '^#[^#]','',''  )
+                            if ( new_gtlin != gtlin )
+                                call setline( lineno, new_gtlin )
+                                echo "UN Hashed out ".filename.":".lineno.":".actualline
+                            endif
+                        else
+                            " HASHing (only if there isn't a hash as the first non-whitespace char )
+                            if ( empty ( matchstr(gtlin, '^\s*#')))
+                                call setline(lineno, "# ".gtlin )
+                                echo "Hashed out ".filename.":".lineno.":".actualline
+                            endif
+                        endif
+                    else
+                        "echo "Can NOT ".rm_hash_unhash." the LINE (doesn't match) ".filename.":".lineno.":".actualline.":".gtlin."::"
+                        echo "Can NOT ".rm_hash_unhash." the LINE (doesn't match) ::>".actualline."<>".gtlin."<::"
+                    endif
+
+                    call TryAndOpenFileName(g:videkah_git_diff_TODO)
+                endif
+            endif
+
+            if ( rm_hash_unhash == 'RM' )
+                call TryAndOpenFileName(filename)
+                let gtlin = getline(lineno)
+                if ( Trim(gtlin) == Trim(actualline) )
+                    exec ":".lineno."delete _"
+                    echo "RM-ed ".filename.":".lineno.":".actualline
+                else
+                    "echo "Can NOT ".rm_hash_unhash." the LINE (doesn't match) ".filename.":".lineno.":".actualline.":".gtlin."::"
+                    echo "Can NOT ".rm_hash_unhash." the LINE (doesn't match) ::>".actualline."<>".gtlin."<::"
+                endif
+                call TryAndOpenFileName(g:videkah_git_diff_TODO)
+            endif
+        endif
+        let gitdiffTODOrow -= 1
+    endwhile
+
+    echo "#"
+    echo "###################################################"
+    echo "FINIISHED ".rm_hash_unhash." out the 'TODO rm this line' lines"
+    echo "###################################################"
+
+    call TryAndOpenFileName(g:videkah_git_diff_TODO)
+    return
+
+endfunction
+
+function! Videkah_extract_gitdiff_TODO_row(currline)
+    " extract a git-diff-TODO line into its 4 constituent parts
+    if ! IsVidekahMode()
+        return ''
+    endif
+
+    let stripCMDregex = '^##\s*\a\+\s*##\s*'
+
+    let filename = a:currline
+    let filename = substitute(filename,stripCMDregex,'','')
+    let filename = substitute(filename,':.*$','','')
+
+    let lineno   = a:currline
+    let lineno   = substitute(lineno,stripCMDregex,'','')
+    let lineno   = substitute(lineno,  '^.\{-}:' , '', '' )
+    let lineno   = substitute(lineno,  ':.*$' , '', '' )
+
+    let actualline = a:currline
+    let actualline = substitute(actualline,  '^.\{-}+', '', '' )
+
+    let todo_action = ''
+    " TODO !!! get the TODO action . i.e. RM , SPACE or TODO . To many TODOs for sanity here.
+
+    return [ lineno, filename, actualline, todo_action ]
+
+endfunction
+
+function! Videkah_create_git_diff_removelines_buffer()
+    if ! IsVidekahMode()
+        return ''
+    endif
+
+    call Select_g_videkah_buffer('videkah_git_diff')
+    " This creates the git_diff_TODO buffer, on lines that were prefixed with a "+" in the git diff
+    " but were found to have special properties.
+    " So this function generates the git-diff-todo-buffer, and it has lines with 3 types of action :-
+    "   excess SPACE lines . where a "+" line in the git diff has been found to have trailing space.
+    "   has a TODO somewhere in the line
+    "   has a "TODO rm this line" at the end of the line ( actually the g:Videkah_todo_rm_this_line_regex match )
+    "
+    " the lines are generated so that the RM lines that should be removed first are at the bottom of the git-diff-todo buffer.
+    " this is so that the line can be deleted and it will not affect the position of the other lines that are going to
+    " be deleted.
+    "
+    " The deletions part of this git-diff-todo workflow could possibly
+    " do a commit before doing this, i.e. force a "git diff HEAD" to be clean
+    " at least check that a "git diff HEAD" is clean, and don't proceed if it isn't.
+    " then there is the ability to roll back if it all goes pear shaped.
+
+    "find out all the '+' lines suffixed with "whitespace", and remove the whitespace.
+
+    " strip_eol_space is an array of all the "+" lines with excess whitespace.
+    let strip_eol_space = Videkah_git_diff_getArrayOfEdits('\s\+$',0)
+
+    " rm_lines is an array of all the "+" lines that are being lined up for deletion.
+    let TODOrmRegex = g:Videkah_todo_rm_this_line_regex
+    let rm_lines = Videkah_git_diff_getArrayOfEdits(TODOrmRegex,1)
+
+    " todo_lines is an array of all the "+" lines that have TODO somewhere in them , and aren't a "TODO rm this line"
+    let todo_lines = Videkah_git_diff_getArrayOfEdits('TODO',0)
+
+    " we're regenerating the git-diff-todo file so lets remove the old one :-
+    call delete(g:videkah_git_diff_TODO)
+    call TryAndOpenFileName(g:videkah_git_diff_TODO)
+
+    " outputing the rm_lines
+    " if these aren't at the end of the git-diff-buffer in the correct order the mass-RM feature will not work
+    " or could go badly wrong. don't muck about with this willy-nilly.
+    for i in rm_lines
+        let blah =  "##  RM   ## ".i[1].":".i[0].":".i[2]
+        call append(line('$'), blah)
+        "call append(0, blah)
+    endfor
+
+    " outputting the todo_lines
+    for i in todo_lines
+        " need to check that it isn't one of the  g:Videkah_todo_rm_this_line_regex
+        if ( empty( matchstr( i[2] , TODOrmRegex ) ) )
+            let blah = "## TODO  ## ".i[1].":".i[0].":".i[2]
+            call append(0, blah)
+        endif
+    endfor
+
+    " outputting the strip_eol_space lines
+    for i in strip_eol_space
+        " rather than writing it out , let us just remove the frickin end-of-line whitespace :-
+        if ( TryAndOpenFileName( i[1] ))
+            execute i[0]
+            call setline( line('.') , substitute(getline('.'), '\s\+$', '', '' ) )
+        endif
+        call TryAndOpenFileName(g:videkah_git_diff_TODO)
+        let blah = "## SPACE ## ".i[1].":".i[0].":".i[2]
+        call append(0, blah)
+    endfor
+
+    exec line('$')
+
+endfunction
+
+function! Videkah_git_diff_getArrayOfEdits(searchregex, find_blank_plus_lines)
+    " find_blank_plus_lines indicates to include in the array returned to include
+    " the plus-prefixed-whitespace-only-lines ( i.e. whitespace other than the preceding plus )
+    " either side of the found item, and to include them in the array returned.
+    " this is primarily so the the "TODO rm this line" can have blank extra lines removed too.
+    if ! IsVidekahMode()
+        return ''
+    endif
+
+    call Select_g_videkah_buffer('videkah_git_diff')
+    " start from 0
+    exec 0
+    let searchit = 1
+    let del_arr = []
+
+    let last_actual_lower_line = 0
+    let last_actual_lower_filename = ''
+
+    while ( searchit == 1 )
+            if ( search( a:searchregex , "W" ) )
+                """"W (above) indicates do not wrap search."
+                " echo "Found  !! ".line('.')
+                let foundlineno = line('.')
+
+                " so it has to be a "plus" line for us to want to automatically do anything to it.
+                if ( ! empty( matchstr(getline('.'),'^+')) )
+                    let rowNfile = Videkah_git_diff_find_row_n_filename( line('.') )
+
+                    call add( rowNfile, getline('.'))
+
+                    if rowNfile[0] > 0
+                        "echo a:searchregex." . Do something to the line ".rowNfile[0]." in ".rowNfile[1]
+
+                        if ( ! a:find_blank_plus_lines )
+                            call add(del_arr, rowNfile)
+                        else
+                            " so try and find the blank rows before and after the found line
+                            " and add them in the correct order so that they can be deleted without affecting the next deletion.
+                            " (this is for the mass-RM of "TODO rm this line" feature.)
+
+                            let higherline = foundlineno
+                            while ( ! empty (matchstr( getline( (higherline - 1) ) , '^+\s*$' ) ))
+                                let higherline -= 1
+                            endwhile
+
+                            let actual_filename = rowNfile[1]
+                            let actual_lineno   = rowNfile[0] - foundlineno + higherline
+
+                            " the actual_XXXX testing is so we don't add a blank line twice for consecutive TODO rm this line statements that are only separated by whitespace containing lines.
+                            while ( higherline < foundlineno  && ( actual_filename != last_actual_lower_filename || actual_lineno > last_actual_lower_line ) )
+                                call add(del_arr, [ actual_lineno , actual_filename , '+' ])
+                                let actual_lineno  += 1
+                                let higherline += 1
+                            endwhile
+
+                            " now we've added the preceding blank lines we can add the original found line
+                            call add(del_arr, rowNfile)
+
+                            " now get the whitespace-containing lines after ....
+                            let lowerline = foundlineno
+                            while ( ! empty (matchstr( getline( (lowerline + 1) ) , '^+\s*$' ) ))
+                                let lowerline += 1
+                            endwhile
+
+                            let actual_filename = rowNfile[1]
+                            let actual_lineno   = rowNfile[0] + 1
+
+                            while ( lowerline > foundlineno )
+                                call add(del_arr, [ actual_lineno , actual_filename , '+' ])
+                                let actual_lineno  += 1
+                                let lowerline -= 1
+                            endwhile
+
+                            let last_actual_lower_line = actual_lineno
+                            let last_actual_lower_filename = actual_filename
+
+                        endif
+                    endif
+                endif
+            else
+                let searchit=0
+            endif
+    endwhile
+    return del_arr
+
+endfunction
+
+function! Videkah_git_diff(param)
+    " this is only here , coz its what generates the git diff in the videkah_git_diff buffer.
+    "Generate the git diff
+    if ! IsVidekahMode()
+        return ''
+    endif
+
+    call Select_g_videkah_buffer('videkah_git_diff')
+
+    " after the previous select of videkah buffer to be the videkah_git_diff one, well we should be there,
+    " however lets just be sure only run the git diff command in the videkah_git_diff buffer
+    " this is because it will wipe out the existing contents of the buffer.
+    if ! IsCurrentVidekahBuffer("videkah_git_diff")
+        echo "Videkah_giff_diff() git diff generation called, and we're not in the videkah_git_diff buffer"
+        return
+    endif
+    exec ":silent %! git diff ".a:param
+
+    echo "we have just run 'git diff ".a:param."'"
+
+    let g:videkah_last_git_diff_param = a:param
+
+endfunction
+
+function! SelectLineOn_videkah_git_diff()
+    if ! IsVidekahMode()
+        return ''
+    endif
+
+    if ! IsCurrentVidekahBuffer("videkah_git_diff")
+        echo "SelectLineOn_videkah_git_diff() called, and we're not on the correct buffer"
+        return
+    endif
+
+
+    """ let filename2add = Trim(@%)
+    let selected_diffrow = line('.')
+    let currLineContents = getline('.')
+
+    if ( ! empty( matchstr(currLineContents, '^+++ ' )) )
+        " its a filename line , just nav to the file
+        let filename = substitute( currLineContents, '^+++ b/',"","")
+        call Videkah_git_commit_plusplusplus_filename_line(filename)
+        return
+    endif
+    if ( ! empty( matchstr(currLineContents, '^--- ' )) )
+        " its a filename line , just nav to the file
+        let filename = substitute( currLineContents, '^--- a/',"","")
+        call TryAndOpenFileName( filename )
+        exec 0
+        return
+    endif
+
+    if ( ! empty( matchstr(currLineContents, '^-' )) )
+        " its a remove line , we can't nav to those
+        echo "Cannot navigate to a diff line that has been removed ( prefixed with minus sign )"
+        " we can only nav to + or <space> prefixed lines, oh plus the +++ and the @@ lines too.
+        return
+    endif
+
+    let rowNfilename = Videkah_git_diff_find_row_n_filename(selected_diffrow)
+    let nav2line = rowNfilename[0]
+    let filename = rowNfilename[1]
+
+    call TryAndOpenFileName( filename )
+
+    exec nav2line
+
+endfunction
+
+function! Videkah_git_diff_find_row_n_filename(startrow)
+    let selected_diffrow = a:startrow
+    if ! IsVidekahMode()
+        return ''
+    endif
+
+    if ! IsCurrentVidekahBuffer("videkah_git_diff")
+        echo "Videkah_git_diff_find_row_n_filename() called, and we're not on the correct buffer"
+        return
+    endif
+
+    if ( ! empty (matchstr(getline(selected_diffrow),"^-")))
+        " cannot really find on lines that are "minus" lines
+        return [0,'']
+    endif
+
+    " _diffrow suffix indicates it is a line number or row in the videkah_git_diff buffer
+    " i.e. to disambiguate with the line-numbers of the file that isn't the videkah_git_diff buffer.
+
+    " get the diffrow in the git_diff that has the "numberLine" , this line starts with a double-at i.e. "@@" sign
+    " and the row will look something like :-
+        " @@ -34,6 +34,10 @@ use Venda::Promotion::Engine;
+
+    let numberLine_diffrow  = FindGitDiffLineNumber(selected_diffrow, '^@@')
+    let numberLineContents  = getline(numberLine_diffrow) " might be 0, need to be checked.
+
+    " extract the +++ file row from the "numberLineContents"
+    let filenameplus_startline = numberLineContents
+    let filenameplus_startline = substitute( filenameplus_startline, '@@ .*+',"","")
+    let filenameplus_startline = substitute( filenameplus_startline, ',.*',"","")
+
+    " get the filename on the +++ line
+    let filenameplus_diffrow  = FindGitDiffLineNumber(selected_diffrow, '^+++')
+    let filenameplus          = getline(filenameplus_diffrow) " might be 0, need to be checked.
+    let filename = substitute( filenameplus,'^+++ \a/','','')
+
+    " so scan backwards from the selected_row, going upwards to where the @@ row is
+    " and count the +-lines and the unchange (leading space) lines,
+    " so that we calculate the offset of where to navigate in the +++ filename
+    let offset_row = 0
+    let i = selected_diffrow
+    while ( i >= numberLine_diffrow )
+        let currLineContents = getline(i)
+
+        if ( ! empty( matchstr(currLineContents, '^+' )) )
+            let offset_row += 1
+        endif
+
+        if ( ! empty( matchstr(currLineContents, '^ ' )) )
+            let offset_row += 1
+        endif
+        let i = i - 1
+    endwhile
+
+    let nav2line = filenameplus_startline + offset_row - 1
+
+    return [nav2line, filename]
+
+endfunction
+
+function! Videkah_git_commit_plusplusplus_filename_line(filename)
+
+    let answer = PromptYesOrNo("Do you want to 'git commit ".a:filename."'")
+
+    if ( answer == 'y' )
+        exec ":silent %! git commit ".a:filename." -m 'rebase this msg away : ".a:filename."'"
+
+        exec ":silent %! git diff ".g:videkah_last_git_diff_param
+        echo " . Did commit ".a:filename
+    else
+        echo " . Did not commit ".a:filename
+    endif
+
+endfunction
+
+function! PromptYesOrNo(prompt_msg)
+
+    let inputvalue = ""
+
+    while ( inputvalue == "" || ( inputvalue != 'y' && inputvalue != 'n') )
+        let inputvalue = PromptGetInput(a:prompt_msg. " (Y/N) ? " )
+        if ( inputvalue != 'y' && inputvalue != 'n')
+            echo "Only enter Y or N please"
+        endif
+    endwhile
+
+    return inputvalue
+
+endfunction
+
+function! PromptDeleteOrNavigate(prompt_msg)
+
+    let inputvalue = ""
+
+    while ( inputvalue == "" || ( inputvalue != 'd' && inputvalue != 'n') )
+        let inputvalue = PromptGetInput(a:prompt_msg. " (D/N) ? " )
+        if ( inputvalue != 'd' && inputvalue != 'n')
+            echo "Only enter D or N please"
+        endif
+    endwhile
+
+    return inputvalue
+
+endfunction
+
+function! PromptDeleteLineOrNavigateOrDelAllOrHashAll()
+
+    let prompt_msg = "(D) Delete-This-Line , (N) Navigate , (A) Delete-ALL , (H) Hash-ALL , (U) UnHash-ALL"
+
+    let inputvalue = ""
+
+    while ( inputvalue == "" || ( inputvalue != 'd' && inputvalue != 'n' && inputvalue != 'a' && inputvalue != 'h' && inputvalue != 'u' ) )
+        let inputvalue = PromptGetInput(prompt_msg. " (D/N/A/H) ? " )
+        if                      ( inputvalue != 'd' && inputvalue != 'n' && inputvalue != 'a' && inputvalue != 'h' && inputvalue != 'u' )
+            echo "Only enter D , N , A , H or U please"
+        endif
+    endwhile
+
+    return inputvalue
+
+endfunction
+
+function! PromptGetInput(prompt_msg)
+
+    let inputvalue = ""
+
+    call inputsave()
+    let inputvalue = input(a:prompt_msg)
+    call inputrestore()
+
+    return inputvalue
+
+endfunction
+
+function! FindGitDiffLineNumber(i, matchthis)
+    " this searches backwards up the file from the line/row == i up until the "matchthis"
+    " regex is found.
+
+    " it then returns the row/line number that was found
+
+    " i is the line number of the git_diff buffer on which to start
+    " matchthis is the single quoted regex to match and is usually one of the following
+    " '^@@'   for the number-line
+    " '^+++'  for the +++ filename line
+    let i = a:i
+    let currIline = getline(i)
+    while ( empty( matchstr(currIline, a:matchthis )) && i > 1 )
+        let i = i - 1
+        let currIline = getline(i)
+    endwhile
+
+    if ( empty( matchstr(currIline, a:matchthis )) )
+        let i = 0
+    endif
+
+    "returns 0 if it didn't find the line
+    "returns the linenumber "i" if it matched the pattern
+
+    return i
+
+endfunction
+
+
+
+"" << end of the git-diff stuff. ALL of IT !!!
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+
+function! SelectLineOn_videkah_perl_stacktrace()
+    if ! IsVidekahMode()
+        return ''
+    endif
+
+    " only what to run this SelectLine on a line in the perlstacktrace buffer
+    if ! IsCurrentVidekahBuffer("videkah_perl_stacktrace")
+        echo "SelectLineOn_videkah_perl_stacktrace() called, and we're not on the correct buffer"
+        return
+    endif
+
+    " so if we are doing the select (<return> or double-mouse click)  on a perlstacktrace line
+    let thisline = getline('.')
+
+    if ( ! empty(matchstr(thisline,"^INSERTED")) || !empty(matchstr(thisline,"^PROCESSED")))
+
+        let thisline = substitute( thisline,"^INSERTED ","","")
+        let thisline = substitute( thisline,"^PROCESSED ","","")
+        " gets the number to the right of the INSERTED or PROCESSED :-
+        let number = matchstr(thisline, "^[0-9]*")
+        if ! empty( number )
+            " need to change GOTO_PERLSTACKTRACE_LOC number.
+            if (  search("^GOTO_PERLSTACKTRACE_LOC" ,"") )
+                call setline('.',"GOTO_PERLSTACKTRACE_LOC ".number)
+                call PerlStacktrace_main("current")
+            else
+                echo "ERROR couldn't set GOTO_PERLSTACKTRACE_LOC"
+            endif
+        endif
+    else
+        echo "( perl_stacktrace buffer ) Select Line : not on an INSERTED or PROCESSED line. can't go anywhere"
+    endif
+endfunction
+
+function! SelectLineOn_videkah_perl_static_class_hierarchy()
+    if ! IsVidekahMode()
+        return ''
+    endif
+
+    " so we are doing the select (<return> or double-mouse click) on a perl_static_class_hierarchy line .
+
+    " only what to run this SelectLineOn in the perl_static_class_hierarchy
+    if ! IsCurrentVidekahBuffer("videkah_perl_static_class_hierarchy")
+        echo "SelectLineOn_videkah_perl_static_class_hierarchy() called, and we're not on the correct buffer."
+        return
+    endif
+
+    if ( ! empty (matchstr(getline("."),"^TREE ")))
+
+        let fileORmodule = substitute(getline('.'),'^TREE\s\+','','')
+        return GotoPerlModuleIfFileExists (fileORmodule,"")
+    endif
+
+    if ( ! empty (matchstr(getline("."),"^PROCESSED ")))
+        "PROCESSED 0 FILE=venda-modules/Venda/Payment/Mode.pm LINE=36 PACKAGE=Venda::Payment::Mode SUB=status
+
+        let fileORmodule = matchstr(getline('.'),'FILE=.*')
+        let fileORmodule = substitute(fileORmodule,'\s\+.*','','')
+        let fileORmodule = substitute(fileORmodule,'^FILE=','','')
+        let thesub = matchstr(getline('.'),'SUB=.*')
+        let thesub = substitute(thesub,'^SUB=','','')
+        "echo "fileORmodule=".fileORmodule."  :  thesub=".thesub
+        return GotoPerlModuleIfFileExists (fileORmodule,thesub)
+    endif
+
+    echo "( perl_static_class_hierarchy buffer ) Select line : not on a TREE or PROCESSED line. can't go anywhere"
+
+endfunction
+
+function! SelectLineOn_videkah_perl_ackgrep()
+    if ! IsVidekahMode()
+        return ''
+    endif
+
+    " so we are doing the select (<return> or double-mouse click) on a videkah_perl_ackgrep line
+    " only what to run this SelectLine in the perl_static_class_hierarchy
+    if ! IsCurrentVidekahBuffer("videkah_perl_ackgrep")
+        echo "SelectLineOn_videkah_perl_ackgrep() called, and we're not on the correct buffer"
+        return
+    endif
+
+    " extract the filename from the front of the current line with non-greedy match upto the first colon
+    let filename = matchstr(getline("."), '^.\{-}:')
+    if ! empty ( filename )
+        let filename  = substitute(filename , ':$', '','' )
+
+        let lineno = matchstr(getline(".") , ':\d\+:')
+
+        if ! empty (lineno)
+
+            let lineno = substitute( lineno , ':$', '','' )
+            let lineno = substitute( lineno , '^:', '','' )
+            call TryAndOpenFileName( filename )
+            exec lineno
+        endif
+        return
+    endif
+
+    echo "( perl_ackgrep buffer ) Select line : don't seem to be able to navigate to the ackgrep line"
+
+endfunction
+
+function! SelectLineNo_GotoPerlUseModule()
+    if ! IsVidekahMode()
+        return ''
+    endif
+
+
+
+    " goto what might be a perl module definition on the current line, or maybe do a perl_static_class_hierarcy
+
+    " this gets run by the main SelectLineNo_ dispatcher
+    " when <return> or double-mouse-clist is pressed on a line in a
+    " buffer that isn't one of the following types :-
+    "   perlstacktrace
+    "   filelist
+    "   runlist
+    "   perl_static_class_hierarchy
+    "   perl_ackgrep
+    "
+    " if the perl line starts with "use", "require", "with" or "extends" and has a module name attempt to open that file in
+    " on of the defined "lib" dirs
+
+    let currline = getline(".")
+
+    if ( Navigate_to_file_and_anchor( currline ))
+        return
+    endif
+
+    let currline = substitute(currline,'^[# ]\+',"","") "remove leading spaces and hashes
+
+    " now if it is a 'use base', 'with' or 'extends'  line, go and do a perl_static_class_hierarchy on the file.
+    for try_regex in [ '^with', '^extends', '^use\s\+base', '@ISA' ]
+        let founduseb_ext_with = matchstr( currline, try_regex )
+        if ! empty ( founduseb_ext_with )
+            call FindSubIn_perl_static_class_hierarchy(@%, '')
+            return 1
+        endif
+    endfor
+
+    " if it just begins with 'use' or 'require' go to the module specified.
+    for try_use_or_require in [ 'use', 'require' ]
+        let founduse = matchstr( currline, '^'.try_use_or_require )
+        if ! empty (founduse)
+            " strip of the front "use or require or with "
+            let themodule = substitute(currline, '^'.try_use_or_require.'\s\+','','')
+
+            " strip of the trailing stuff after the first space.
+            "let themodule = substitute(themodule ,"\\s\\+qw.\\+","","")
+            let themodule = substitute(themodule ,'\s\+.\+','','')
+            let themodule = substitute(themodule,';$','','')
+            let themodule = substitute(themodule,',$','','') " from a with statement
+
+            let themodule = substitute(themodule,"^'",'','') " from a with statement
+            let themodule = substitute(themodule,'^"','','') " from a with statement
+            let themodule = substitute(themodule,"'$",'','') " from a with statement
+            let themodule = substitute(themodule,'"$','','') " from a with statement
+
+            let themodule = substitute(themodule,'\s\+$','','')
+
+            return GotoPerlModuleIfFileExists (themodule,'')
+        endif
+    endfor
+
+    return 0
+endfunction
+
+function! OpenSomethingFromVisualSelection_n_Enter ()
+    if ! IsVidekahMode()
+        echo ''
+        return ''
+    endif
+
+    " need to be able to try say My::Module::Mysubname , see if the file exists. if it doesn't exist then try to see if My::Module file exists , if it does search for "sub Mysubname"
+
+    " need to be able to split up My::Module->myclassmethod up, see if My::Module file exists if it does open it and search for "sub myclassmethod"
+
+    " if a visual selection is just "->methodname" go grepping in all the libpaths for the "sub methodname"
+
+    " if all of the above fail grep for whatever is in the visual selection , show in a "search" buffer . in the search buffer pressing return on one of the lines will take you to the place.
+
+
+    " if it has a trailing ->blah get rid of that immediately
+
+"    let subname = matchstr(visel, "->
+
+" if it is a $self->methodName search only the current file for "sub methodname" . of course this could be extended by Looking for 'extend' lines in Moose classes, and use base lines, but these will be for a later step.
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+    "strip of ( and anything after it.
+    let visel = Lhvisualselection()
+    let original_visel =  visel
+    let visel = substitute(visel,'(.*','','') " remove everything after the first left-hand-parenthesis (
+    let visel = substitute(visel,'\s\+','','g') " remove all space
+    let visel = substitute(visel,';$','','') " remove trailing semi-colons
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    " is it a $self->methodname or $class->methodname ?
+    " if so search in local buffer.
+    " if that fails look for a "use base" or "extends"
+
+    if ( ! empty ( matchstr(visel,'^$*\(self\|class\|klass\)->')) ) " TODO make the $ optional in a better way than just the * wildcard.
+        " so our visual search is looking for method names of this or its parent classes/roles
+        " lets try and do a very static search in the current file, and any of its parent/role classes and see how many subs might be called by it.
+        let subname = matchstr(visel,'->.*')
+        let subname = substitute(subname, '->',"","")
+        call FindSubIn_perl_static_class_hierarchy(@%, subname)
+        return 1
+    endif
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    " try the module->method notation
+    if ! empty ( matchstr(visel, '.\+->' ) )
+        let modulename = substitute(visel,'->.*',"","")
+        let subname = matchstr(visel,'->.*')
+        let subname = substitute(subname, '->',"","")
+
+        " if we got here we're not going to try anything else ,
+        " so return.
+        return GotoPerlModuleIfFileExists(modulename,subname)
+    endif
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    " try "^->methodname" and ack-grep all the ackgrep-libpaths for "sub methodname"
+
+    if ! empty ( matchstr(visel, '^->'))
+        " so the match is the ->sumin , this assume you want to look the method name up in the super class
+        let methodname = substitute(visel,'^->', '', '')
+
+        " please note the following regex looking thing in
+        " call FindSubIn_videkah_perl_ackgrep is getting fed to ack-grep
+        " and is different from vimscript regexs. i.e. the + isn't \+ (So DON'T change it)
+        call FindSubIn_videkah_perl_ackgrep('sub\s+'.methodname)
+        return 1
+    endif
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    " try the my::module::name::methodname
+    let modulename = visel
+    let subname    = ''
+    if ( GotoPerlModuleIfFileExists(modulename,subname) == 0 )
+        " get the module name up to the last :: or '
+        let modulename = matchstr(visel,".*\\(::\\|'\\)")
+
+        " get the subname by removing the modulename from visel
+        let subname    = substitute(visel,modulename,"","")
+        " now modulename can have its last :: or ' removed
+        let modulename = substitute(modulename,'\(::\|'."'".'\)$',"","")
+
+        if ( GotoPerlModuleIfFileExists(modulename,subname) == 0 )
+            " so its not a module name , lets do a select like on a line of the filelist
+    "        if ( filereadable(visel) )
+    "            call TryAndOpenFileName(visel)
+    "            return ''
+
+    "        endif
+
+            let currvisel = substitute(visel,'^[# ]\+',"","") "remove leading spaces and hashes
+            " so lets do a select like the filelist selection:-
+            return SelectLineOn_videkah_filelist_GUTS(currvisel,1)
+
+        endif
+
+        return ''
+    endif
+
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+endfunction
+
+
+function! FindSubIn_perl_static_class_hierarchy(startperlmodule,  subname)
+    if ! IsVidekahMode()
+        return ''
+    endif
+
+    " used for visual selections on $self->methodname
+    " and for when <return> or double-mouse-click is done on an use base, extends or with line.
+
+    call Select_g_videkah_buffer('videkah_perl_static_class_hierarchy')
+
+    " empty the buffer :-
+    exec ":1,".line("w$")."delete _"
+
+    call append(0, "LIBPATHS=".join( GetPerlLibPaths() ))
+    call append(0, "SUBNAME=".a:subname )
+    call append(0, "STARTPERLMODULEFILE=".a:startperlmodule )
+
+    " pipe out the current buffer to the perl filter script
+    exec ":silent %!".$HOME."/.vim/videkah/bin/videkah_perlfindsubinclasses.pl"
+    exec ":silent w!"
+
+endfunction
+
+function! SearchForVisualSelection_with_ackgrep()
+    if ! IsVidekahMode()
+        echo ''
+        return ''
+    endif
+
+    let visel = Lhvisualselection()
+    call FindSubIn_videkah_perl_ackgrep(visel)
+
+endfunction
+
+function! FindSubIn_videkah_perl_ackgrep(searchstring)
+    if ! IsVidekahMode()
+        return ''
+    endif
+
+    " this filters the videkah_perl_ackgrep buffer and turns it
+    " into the navigatable buffer by calling the ack-grep script.
+    " used for visual selections on $self->methodname.
+
+    call Select_g_videkah_buffer('videkah_perl_ackgrep')
+
+    " empty the buffer :-
+    exec ":1,".line("w$")."delete _"
+
+    let ackgrep_libpaths = Get_videkah_config('ACKGREP_PATHS')
+    let t_libpaths = ''
+    if ! empty(ackgrep_libpaths)
+        let t_libpaths = Trim(ackgrep_libpaths[0])
+    endif
+    if ! t_libpaths
+        " if the ACKGREP_PATHS were useless lets default back to the PERL_LIBPATHS
+        let t_libpaths = Trim(join( GetPerlLibPaths() ))
+    endif
+
+    call append(0, "LIBPATHS=".t_libpaths)
+    call append(0, "SEARCHSTRING=".a:searchstring )
+
+    " pipe out the current buffer to the perl filter script
+    exec ":silent %!".$HOME."/.vim/videkah/bin/videkah_perl_ackgrep.pl"
+    exec ":silent w!"
+
+endfunction
+
+function! Lhvisualselection()
+  try
+    let a_save = @a
+    normal! gv"ay
+    return @a
+  finally
+    let @a = a_save
+  endtry
+endfunction
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" videkah Perl Stack Trace navigation 2014-01-29 karl khaos hoskin
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" all the key mappings and a quick description of what they do first :-
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" go backward in the stack trace
+nmap <Leader><left> :call PerlStacktrace_main("backward")<cr>
+"""""""""""""""""""""""""""""""""""""""""""""""
+" go forward in the stack trace
+nmap <Leader><right> :call PerlStacktrace_main("forward")<cr>
+"""""""""""""""""""""""""""""""""""""""""""""""
+" to the current position in the stack trace ( don't move perlstacktrace_loc pointer )
+nmap <Leader><down> :call PerlStacktrace_main("current")<cr>
+"""""""""""""""""""""""""""""""""""""""""""""""
+" up just open up the perlstacktrace buffer
+nmap <Leader><up> :call Select_g_videkah_buffer('videkah_perl_stacktrace')<cr>
+"""""""""""""""""""""""""""""""""""""""""""""""
+" add the current file and line to one of the points on the trace navigation
+" tries to add at the point of after the current perlstacktrace_loc
+" if it can't it just adds it somewhere.
+nmap <Leader>a :call PerlStacktrace_addline()<cr>
+"""""""""""""""""""""""""""""""""""""""""""""""
+
+function! PerlStacktrace_addline()
+    if ! IsVidekahMode()
+        return ''
+    endif
+
+    let filename=@%
+    let linenum=line('.')
+
+    call Select_g_videkah_buffer('videkah_perl_stacktrace')
+
+    if (  search("^GOTO_PERLSTACKTRACE_LOC" ,"") )
+        let g:perlstacktrace_loc = substitute( getline("."),"^GOTO_PERLSTACKTRACE_LOC\\s*","","") * 1
+    else
+        "adding a line when there are any processed or inserted lines to flick between
+        exec append(0,"INSERTED 0 FILE=".filename." LINE=".linenum." PACKAGE= SUB=")
+        call PerlStacktrace_main("current")
+        return
+    endif
+
+    if ( search("PROCESSED ".g:perlstacktrace_loc , "" ))
+        exec append(line('.'),"INSERTED 0 FILE=".filename." LINE=".linenum." PACKAGE= SUB=")
+        call PerlStacktrace_main("backward")
+    else
+        if ( search("INSERTED ".g:perlstacktrace_loc , "" ))
+            exec append(line('.'),"INSERTED 0 FILE=".filename." LINE=".linenum." PACKAGE= SUB=")
+            call PerlStacktrace_main("backward")
+        endif
+    endif
+
+endfunction
+
+function! PerlStacktrace_main ( direction )
+    if ! IsVidekahMode()
+        return ''
+    endif
+
+    call Select_g_videkah_buffer('videkah_perl_stacktrace')
+
+    " see if the perlstacktrace buffer has the line
+    " GOTO_PERLSTACKTRACE_LOC
+    " if it does use that for the g:perlstacktrace_loc
+    if (  search("^GOTO_PERLSTACKTRACE_LOC" ,"") )
+        let g:perlstacktrace_loc = substitute( getline("."),"^GOTO_PERLSTACKTRACE_LOC\\s*","","") * 1
+    endif
+
+    if ! exists("g:perlstacktrace_loc")
+        let g:perlstacktrace_loc = 0
+    else
+        if a:direction == "forward"
+            let g:perlstacktrace_loc = g:perlstacktrace_loc - 1
+        endif
+        if a:direction == "backward"
+            let g:perlstacktrace_loc = g:perlstacktrace_loc + 1
+        endif
+        " we don't have to do anything for "current" , the pointer stays the same
+    endif
+
+    " so I'm passing the current perlstacktrace_loc into the perlstacktrace.pl filter
+    " in a different way to what is obvious ( you'd have thought I'd use the GOTO_PERLSTACKTRACE_LOC)
+    " this is sort of a vestigial way, coz its what I came up with first, before
+    " I'd ever dreamed of GOTO_PERLSTACKTRACE_LOC. TODO (for karl) change this .
+    call append(0, "LIBPATHS=".join( GetPerlLibPaths() ))
+    exec append(0,"perlstacktrace_loc=".g:perlstacktrace_loc)
+
+    " :%!cmd  (replace the buffer ) . :w !cmd (write buffer to external command)
+    exec ":silent %!".$HOME."/.vim/videkah/bin/videkah_perlstacktrace.pl"
+    exec ":silent w!"
+
+    " we should have some GOTO_FILE , GOTO_LINE , GOTO_SUB in the perlstacktrace buffer now.
+    let goto_file=""
+    let goto_line=0
+    let goto_sub =""
+
+    " TODO need to check if the file exists before we try and go to it.
+
+    if ( search("^GOTO_FILE" ,"") )
+        let goto_file = substitute( getline("."),"^GOTO_FILE\\s*","","")
+        "echo "goto file ".goto_file
+        if ( search("^GOTO_LINE" ,"") )
+            let goto_line = substitute( getline("."),"^GOTO_LINE\\s*","","")
+        endif
+        if ( goto_line > 0 )
+            "do it
+            exec ":silent e ".goto_file
+            exec goto_line
+        else
+            if ( search("^GOTO_SUB" ,"") )
+                let goto_sub = substitute( getline("."),"^GOTO_SUB\\s*","","")
+                "do it
+                exec ":silent e ".goto_file
+                if ! search( "^sub\\s*".goto_sub , "")
+                    echo "NOT found goto sub ".goto_sub
+                endif
+            endif
+        endif
+    endif
+
+endfunction
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+function! QuitAndReloadVidekah()
+    " write out the file that will reopen vim again.
+    " the videkah shell script looks for this file, and will reopen vim in videkah mode
+    " only when this file is present.
+    "
+    " <f8><f8> usually triggers this.
+    "
+    if ! IsVidekahMode()
+        echo ''
+        return ''
+    endif
+    exec ":w!"
+    exec ":e .videkah/keep_videkah_open"
+    exec ":w!"
+    exec ":qa"
+
+endfunction
+
+function! IsVidekahMode()
+    if ( bufnr(g:videkah_config_buffer_name) != -1 )
+        " so we have a buffer called '.videkah/config' assume we're in videkah mode.
+        return 1
+    endif
+    return 0
+endfunction
+
+function! GetGitBranchName()
+    " so this will NOT cope with a git branch called 'fatal', I guess that could be a bug. TODO maybe fix this.
+
+    let gitbranch = Trim( system ( "git symbolic-ref HEAD | sed 's!refs\/heads\/!!'" ) )
+
+
+    " TODO fix this . this breaks if it isn't a git repo
+    return gitbranch
+endfunction
+
+
+"function! IsCurrentVidekahBuffer(VidekahBufferSymbolicName)
+"HERE
+    """""" WHAT ITS GONNA BE :- let videkah_list_of_buffers = [ "videkah_filelist", "videkah_runlist", "videkah_git_diff" , "videkah_perl_stacktrace", "videkah_perl_static_class_hierarchy", "videkah_perl_ackgrep",  "videkah_config" ]
+    """""" let videkah_list_of_buffers = [ "videkah_filelist", "videkah_runlist", "perlstacktrace", "perl_static_class_hierarchy", "videkah_perl_ackgrep",  "videkah_config" ]
+
+"endfunction
+
+function! IsCurrentVidekahBuffer(videkah_symbolic)
+    " detects if the current buffer is the defined type of videkah buffer
+    if ( Trim(@%) == Trim(Get_videkah_buffer_real_filename(a:videkah_symbolic)) )
+        return 1
+    endif
+    return 0
+endfunction
+
+function! Get_videkah_buffer_real_filename(videkah_symbolic)
+    " gets the proper filename for a videkah buffer.
+    " thus translating from the symbolic name, and getting the real thing.
+    " This requires looking at the videkah config, finding out the directory, and seeing if its
+    " name is related to the git-branch.
+    if ! IsVidekahMode()
+        " we can only find this info out if we are in videkah mode, with its config.
+        return ''
+    endif
+
+    let videkah_symbolic = toupper(a:videkah_symbolic)
+
+" TODO some sort of check to say if its a valid videkah_symbolic buffername
+"    if (videkah_symbolic != 'FILE' && videkah_symbolic !='RUN' )
+"        echo "Get_Run_Or_FileList_filename called with '".videkah_symbolic."'. this is not RUN or FILE and is not valid"
+"        " TODO raise an exception
+"        return
+"    endif
+
+
+    let list_by_git_branch = Get_videkah_config(videkah_symbolic.'_BY_GIT_BRANCH')
+    if empty (list_by_git_branch)
+        echo "can't get parameter ".videkah_symbolic.'_BY_GIT_BRANCH'
+        " TODO raise an exception
+        return
+    endif
+
+    let list_dir = Get_videkah_config(videkah_symbolic.'_DIR')
+    if empty (list_dir)
+        echo "can't get parameter ".videkah_symbolic.'_DIR'
+        " TODO raise an exception
+        return
+    endif
+
+    " strip off leading videkah from the videkah_symbolic
+    let short_symbolic = substitute(tolower(videkah_symbolic),'videkah_','','')
+
+    if ( list_dir[0] == '' )
+        " so we are going to be in one of the local .videkah/XXXXXX dirs to store files.
+        let list_dir[0] = '.videkah/'.short_symbolic
+    endif
+
+    " need a trailing / on the dir name.
+    if empty ( matchstr( list_dir[0] , '/$', ''))
+        let list_dir[0] .= "/"
+    endif
+
+    if list_by_git_branch[0]
+        " so we need the gitbranch name
+        let filename = list_dir[0].GetGitBranchName()
+    else
+        let filename = list_dir[0].tolower(short_symbolic)
+    endif
+
+    return filename
+
+endfunction
+
+
+function! GetPerlLibPaths()
+    if ! IsVidekahMode()
+        " we can only find this info out if we are in videkah mode, with its config.
+        " the calling routine is expecting an array , so returning a string will blow up.
+        return ''
+    endif
+
+    let perl_libpaths = Get_videkah_config('PERL_LIBPATHS')
+
+    if ( ! empty( perl_libpaths ) )
+        let arr = split(perl_libpaths[0] ,'\s\+')
+        return arr
+    else
+        echo "can't find PERL_LIBPATHS in the buffer ".g:videkah_config_buffer_name
+        return []
+    endif
+
+endfunction
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" get the videkah config stuff.
+" with the config options that haven't yet been implemented :-
+"let g:videkah_config_fieldnames = [ 'VIDEKAH_FILELIST_DIR', 'VIDEKAH_FILELIST_BY_GIT_BRANCH', 'VIDEKAH_RUNLIST_DIR', 'VIDEKAH_RUNLIST_BY_GIT_BRANCH', 'VIDEKAH_GIT_DIFF_DIR', 'VIDEKAH_GIT_DIFF_BY_GIT_BRANCH', 'VIDEKAH_PERL_ACKGREP_DIR', 'VIDEKAH_PERL_ACKGREP_BY_GIT_BRANCH', 'VIDEKAH_PERL_STACKTRACE_DIR', 'VIDEKAH_PERL_STACKTRACE_BY_GIT_BRANCH', 'VIDEKAH_PERL_STATIC_CLASS_HIERARCHY_DIR', 'VIDEKAH_PERL_STATIC_CLASS_HIERARCHY_BY_GIT_BRANCH', 'RUN_FROM_BASEDIR', 'PERL_LIBPATHS', 'ACKGREP_PATHS', 'MAX_VIDEKAH_PERL_STACKTRACE_BUFFERS', 'MAX_VIDEKAH_PERL_ACKGREP_BUFFERS', 'MAX_VIDEKAH_PERL_STATIC_CLASS_HIERARCHY_BUFFERS', 'OPEN_ALL_FILELIST_AT_STARTUP' ]
+
+let g:videkah_config_fieldnames = [ 'VIDEKAH_FILELIST_DIR', 'VIDEKAH_FILELIST_BY_GIT_BRANCH', 'VIDEKAH_RUNLIST_DIR', 'VIDEKAH_RUNLIST_BY_GIT_BRANCH', 'VIDEKAH_GIT_DIFF_DIR', 'VIDEKAH_GIT_DIFF_BY_GIT_BRANCH', 'VIDEKAH_PERL_ACKGREP_DIR', 'VIDEKAH_PERL_ACKGREP_BY_GIT_BRANCH', 'VIDEKAH_PERL_STACKTRACE_DIR', 'VIDEKAH_PERL_STACKTRACE_BY_GIT_BRANCH', 'VIDEKAH_PERL_STATIC_CLASS_HIERARCHY_DIR', 'VIDEKAH_PERL_STATIC_CLASS_HIERARCHY_BY_GIT_BRANCH', 'RUN_FROM_BASEDIR', 'PERL_LIBPATHS', 'ACKGREP_PATHS' ]
+
+function! Populate_videkah_config()
+
+"    echom "running Populate_videkah_config"
+
+    " need to get keep the currbuffer, so we can revert to it latter
+    let currbuffer = @%
+    if ! TryAndOpenFileName(g:videkah_config_buffer_name)
+        " we didn't manage to open the videkah config, so we can't load its values.
+        echo "can't open the ".g:videkah_config_buffer_name
+        return ''
+    endif
+
+    " all this terrible code is because I can't seem to get associative arrays to work for me.
+    " so I've got to do them MANUALLY.
+
+    " because we have to use "add" to the end of the array , we need to
+    " reset the array here :-
+    let g:videkah_config_value = []
+
+    let tcount = 0
+    for i in g:videkah_config_fieldnames
+        call add( g:videkah_config_value , GetParameterFromCurrentBuffer(i) )
+    "    echo tcount." ".i."  ".g:videkah_config_value[tcount][0]
+        let tcount += 1
+    endfor
+    return
+
+    "for i in g:videkah_config_fieldnames
+    "    echo "TEST ".i.' == '.Get_videkah_config(i)[0]
+    "endfor
+
+    call TryAndOpenFileName(currbuffer)
+
+endfunction
+
+function! Get_videkah_config(FIELDNAME)
+    " gets the value of the specified FIELDNAME from the config.
+    let tcount = 0
+    for i in g:videkah_config_fieldnames
+        if ( i == a:FIELDNAME )
+            return g:videkah_config_value[tcount]
+        endif
+        let tcount += 1
+    endfor
+    echo "Get_videkah_config couldn't find the field ".a:FIELDNAME
+    return
+
+endfunction
+
+function GetParameterFromCurrentBuffer ( parameter )
+    " returns an ARRAY . so you can tell if it is "empty" , i.e. no value found, which is different from having a boolean-false/0/empty-string response ( which might be valid )
+    " in fact the parameter should really only be A-Z , underscore, and 0-9,
+    if ( empty ( matchstr( a:parameter, '^[A-Za-z0-9_]\+$')))
+        echo "GetParameterFromCurrentBuffer() the parameter ".a:parameter." has illegal characters"
+        return []
+    endif
+    if ( search('^\s*'.a:parameter.'\s*=' ) ) " the search really needs to be case-insensitive <- TODO
+        let theparam = Trim(substitute( getline("."),'^\s*'.a:parameter.'\s*=','',''))
+
+        "echo "GetParameterFromCurrentBuffer ".a:parameter." === ".theparam
+        return [ theparam ]
+    endif
+    echo "GetParameterFromCurrentBuffer can't find ".a:parameter." in ".@%
+    return []
+endfunction
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+function! AddCurrentBufferNameToFileList()
+
+    let filename2add = Trim(@%)
+
+    call Select_g_videkah_buffer('videkah_filelist')
+
+    " search the filelist and see if it already exists.
+    " if it does exist, don't bother re-adding it. just select that line in the filelist.
+    if ( search('^\s*'.filename2add.'\s*$' ) )
+        echo "you've already got ".filename2add." in the filelist"
+    else
+        call append(0, filename2add)
+        exec 0
+    endif
+
+endfunction
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" general functions, used by many sections of videkah
+
+function! TryAndOpenFileName (buffile)
+    " this tries to see if we have a buffer open for the file, if so it
+    " will open that, because opening the buffer with :b will preserve the current line number
+    " if we don't have it open already , then just do a :e file open.
+
+    " if the current buffer that we're leaving is the videkah_config
+    " then we really want to reload the videkah_config
+    let buffile=a:buffile
+    if ( bufnr("^".buffile."$") != -1 )
+        " need to do this if we are to stay at the current line , and not reopen the file everytime.
+        exec ":silent w!"
+        exec ":silent b ". bufnr("^".buffile."$")
+    else
+        " file wasn't in any buffer , so open it up .
+        exec ":silent w!"
+        exec ":silent e ".buffile
+    endif
+
+    " see if we changed buffer.
+    if ( @% == buffile )
+        return 1
+    endif
+    return 0
+
+endfunction
+
+function! GotoPerlModuleIfFileExists(themodule,thesubname)
+    " given a this::module::name this will search through the likely places in venda app checkout
+    " and see if the file is readable. If it is it will switch to that file.
+    " echo "called with ".a:themodule."   ".a:thesubname
+    "
+    " you can also call this with a filename of a .pm and it will work assuming there aren't :: or ' in the filename.
+
+    let themodule = a:themodule
+    let themodule = substitute(themodule,"::","/","g") " replace the :: with /
+    let themodule = substitute(themodule,"'","/","g")  " replace the perl-classic  ' with /
+
+    let haspm = matchstr(themodule, "\\.pm$")
+    if empty(haspm)
+        let themodule .= ".pm" "append the .pm
+    endif
+
+    for libpath in GetPerlLibPaths()
+        let fullpathmodule = libpath.themodule
+        if filereadable(fullpathmodule)
+            call TryAndOpenFileName(fullpathmodule)
+            if ! empty(a:thesubname)
+                " fix here . also search for "has"  #  rm this comment. FIX for "has attribute (really a sub) " here. bug found 20140324
+                if ! search( "^sub\\s*".a:thesubname, "")
+                    call search( "^has\\s*".a:thesubname, "")
+                endif
+            endif
+            return 1 " to indicate we did try and open something
+        endif
+    endfor
+    return 0
+endfunction
+
+function! Trim(str)
+    let txt= a:str
+
+    " these regexes should do what I want,
+    " i.e. get rid of all newlines and spaces and tabs
+    " before and after the main string
+
+    let txt = substitute(txt,'^\_s\+','','')
+    let txt = substitute(txt,'\_s\+$','','')
+    return txt
+endfunction
+
+
+function! CopyCurrentLocationToMainRegister()
+
+    let filename2add = Trim(@%)
+    let currLineNumber = line('.')
+    let currLineContents = getline('.')
+    " the extra spaces in front are to stop the git-diff-unhashing feature from "livening" up code that
+    " should never be livened up by unhashing.
+    " the unhashing feature only unhashes where there is no leading space on the line, hence the extra space needed here :-
+    " also the unhashing doesn't unhash where the first # is a double ##. So the following is doubly safe from unhashing,
+    " and yet still has the g:Videkah_todo_rm_this_line_suffix
+    let @" = "  ## ".filename2add.":".currLineNumber.":".currLineContents." ".g:Videkah_todo_rm_this_line_suffix."\n"
+
+    echo "copied to current line in nav format to main register. use p to paste  "
+
+endfunction
+
+function! CopyCurrentLocationToMainRegister_filelink()
+    " generate a link for use with Navigate_to_file_and_anchor
+    let filename2add = Trim(@%)
+
+    " same regex as that in Navigate_to_file_and_anchor that validates the anchor part.
+    let prefix = matchstr(getline('.'),'^[ #]*[.\-_:0-9a-zA-Z]\+' )
+
+    if ( empty (prefix))
+        let filelink = " file:".filename2add."#"
+    else
+
+        let prefix = substitute(prefix,'^[ #]*',"","") "remove leading hashes
+
+        let filelink = " file:".filename2add."#".prefix
+    endif
+
+    let @" = filelink
+    echo " link  ".filelink." copied to main register. Use p to paste"
+
+endfunction
+
+
+" "# TODO rm this line" stuff
+
+nnoremap <Leader>r <esc>:call Normal_append_rm_this_line()<cr>
+
+function! Normal_append_rm_this_line()
+
+    "echo "<leader>r called"
+    exec "normal A".g:Videkah_todo_rm_this_line_suffix."\<cr>\<esc>"
+
+endfunction
+
+
+vmap <silent>  <leader>r <esc>:call Visual_append_rm_this_line()<cr>
+vmap <silent>  <leader>rr <esc>:call Visual_remove_rm_this_line()<cr>
+
+function! Visual_append_rm_this_line()
+
+    let [lnum1, col1] = getpos("'<")[1:2]
+    let [lnum2, col2] = getpos("'>")[1:2]
+
+    let ln = lnum1
+
+    while ln <= lnum2
+        call setline(ln,getline(ln).g:Videkah_todo_rm_this_line_suffix)
+        let ln += 1
+    endwhile
+
+endfunction
+
+function! Visual_remove_rm_this_line()
+
+    let [lnum1, col1] = getpos("'<")[1:2]
+    let [lnum2, col2] = getpos("'>")[1:2]
+
+    let commentchar = GetCommentCharForFileExt()
+
+    let ln = lnum1
+
+    while ln <= lnum2
+
+        call setline( ln , substitute(getline(ln),g:Videkah_todo_rm_this_line_suffix.'\s*$' ,"","") )
+        let ln += 1
+    endwhile
+
+endfunction
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Wishlist of features and improvements to the code..
+""""""""""""""""""""""""""""""
+
+" TODO xmllint --format  output  short cut. on a visual-selection Or an entire file.
+
+" TODO a way of storing all the previously open buffers, and navigating back and forward through them in the sequence they were opened. A stack like thing, working like the browser-back and browser-forward buttons of firefox.
+
+" TODO get all the "exec ':w!' and make them call a common routine that can see if the buffer they are navigating away from is the .videkah/config, and thus fix the re-reading of .videkah/config bug.
+
+
+" TODO implement the PERL_STACK_TRACE_STRIP_REGEX=
+
+" TODO fix the GetGitBranchName when not in a git-repo to return something like NOTGIT
+
+" TODO make the F2 button not only give the current filename , but also in videkah mode give the videkah symbolic name in brackets after the name.
+
+" So <space> cycles through the videkah buffers
+
+" TODO bug where ./bin/videkah will open ./bin/videkah_khaos , if videkah_khaos had been opened before videkah. ( i might have fixed this )
+
+" TODO , feature where we can run the mass (un) hashing and rm-ing on the "TODO rm this line" , but just in a single file ( rather than all the git-diff-list )
+
+
+" TODO  get the <f7> that currently deploys files to give a list of options . lets say a max of from 0 -> 9 (maybe a -> z too ) . These options on what is run will need to be defined in some sort of config somewhere.
+" TODO get a f7 like button to just deploy the current file. Maybe have a single press of f7 deploy the current file. double-press of f7 deploy all files. Deploy would be writing the file(s) to a defined base-dir. The Base-dir would be in the config.
+
+
+" "# TODO rm this line" needs to be definable. i.e. so it could be "// TODO rm this line" or whatever works in whatever language. currently its hard-coded to perl , and that is BAD .
+
+echo "Videkah v0.02-2016-02-10-2153"

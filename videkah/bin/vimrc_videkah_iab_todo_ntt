@@ -1,0 +1,7 @@
+
+
+iab ldy   file:aa_daily_log.txt#
+iab lmn   file:aa_todo_main.txt#
+iab lqu   file:aa_wdtm_questions.txt#
+
+

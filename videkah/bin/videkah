@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Karl khaos Hoskin
+# videkah # a vim ide !
+
+if [ ! -d '.videkah' ] ; then
+    echo "cannot find .videkah dir"
+    exit 1
+fi
+
+if [ ! -f '.videkah/config' ] ; then
+    echo "cannot find .videkah/config file"
+    exit 1
+fi
+
+# TODOdon't allow videkah to run if another videkah is running at the current working directory location.
+
+
+#videkahrun allows vim to create a file to say "reopen vim". and reload vimscripts etc.
+# currently vim is setup for a double <f8> press to write this file.
+videkahrun=".videkah/keep_videkah_open"
+
+touch $videkahrun
+
+while [ -f $videkahrun ]
+do
+
+    rm $videkahrun
+
+    vim .videkah/config
+
+done
+
+#source $HOME/bin/TITLEdefault.bash
+
+
+
